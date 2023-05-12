@@ -1,0 +1,214 @@
+[
+  {
+    "id": 62,
+    "rotate": 90
+  },
+  {
+    "id": 63,
+    "rotate": 90
+  },
+  {
+    "id": 76,
+    "rotate": -90
+  },
+  {
+    "id": 104,
+    "rotate": 180
+  },
+  {
+    "id": 256,
+    "largeUrl": "https://imgs.xkcd.com/comics/online_communities.png"
+  },
+  {
+    "id": 657,
+    "largeUrl": "https://imgs.xkcd.com/comics/movie_narrative_charts_large.png"
+  },
+  {
+    "id": 681,
+    "largeUrl": "https://imgs.xkcd.com/comics/gravity_wells_large.png"
+  },
+  {
+    "id": 802,
+    "largeUrl": "https://imgs.xkcd.com/comics/online_communities_2_large.png"
+  },
+  {
+    "id": 980,
+    "message": "This comic may not display properly on some systems. If you experience issues, try https://xkcd.com/980/huge.",
+    "largeUrl": "https://imgs.xkcd.com/comics/money_huge.png"
+  },
+  {
+    "id": 1000,
+    "largeUrl": "https://imgs.xkcd.com/comics/1000_comics_large.png"
+  },
+  {
+    "id": 1037,
+    "message": "The servers supporting this comic have been taken down. See https://explainxkcd.com/1037.",
+    "imgUrl": "https://www.explainxkcd.com/wiki/images/f/ff/umwelt_the_void.jpg"
+  },
+  {
+    "id": 1040,
+    "largeUrl": "https://imgs.xkcd.com/comics/lakes_and_oceans_large.png"
+  },
+  {
+    "id": 1071,
+    "largeUrl": "https://imgs.xkcd.com/comics/exoplanets_large.png"
+  },
+  {
+    "id": 1079,
+    "largeUrl": "https://imgs.xkcd.com/comics/united_shapes_large.png"
+  },
+  {
+    "id": 1080,
+    "largeUrl": "https://imgs.xkcd.com/comics/visual_field_large.png"
+  },
+  {
+    "id": 1097,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1103,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1110,
+    "previewUrl": "https://www.explainxkcd.com/wiki/images/c/c7/click_and_drag.png"
+  },
+  {
+    "id": 1127,
+    "largeUrl": "https://imgs.xkcd.com/comics/congress_large.png"
+  },
+  {
+    "id": 1182,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1190,
+    "message": "You can find the archive of this comic at http://geekwagon.net/projects/xkcd1190/.",
+    "animatedUrl": "https://www.explainxkcd.com/wiki/images/4/41/time-animated.gif"
+  },
+  {
+    "id": 1193,
+    "message": "The supporting subdomain for this comic is down.",
+    "previewUrl": "https://www.explainxkcd.com/wiki/images/0/0b/externalities.png"
+  },
+  {
+    "id": 1196,
+    "largeUrl": "https://imgs.xkcd.com/comics/subways_large.png"
+  },
+  {
+    "id": 1229,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1253,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1256,
+    "largeUrl": "https://imgs.xkcd.com/comics/questions_large.png"
+  },
+  {
+    "id": 1298,
+    "largeUrl": "https://imgs.xkcd.com/comics/exoplanet_neighborhood_large.png"
+  },
+  {
+    "id": 1335,
+    "animatedUrl": "https://www.explainxkcd.com/wiki/images/1/14/now.gif"
+  },
+  {
+    "id": 1349,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1350,
+    "previewUrl": "https://www.explainxkcd.com/wiki/images/3/3d/lorenz.png"
+  },
+  {
+    "id": 1389,
+    "largeUrl": "https://imgs.xkcd.com/comics/surface_area_large.png"
+  },
+  {
+    "id": 1392,
+    "largeUrl": "https://imgs.xkcd.com/comics/dominant_players_large.png"
+  },
+  {
+    "id": 1416,
+    "previewUrl": "https://imgs.xkcd.com/comics/pixels.png"
+  },
+  {
+    "id": 1446,
+    "animatedUrl": "https://i.imgur.com/M4wa8Ed.gif"
+  },
+  {
+    "id": 1452,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1461,
+    "largeUrl": "https://imgs.xkcd.com/comics/payloads_large.png"
+  },
+  {
+    "id": 1491,
+    "largeUrl": "https://imgs.xkcd.com/comics/stories_of_the_past_and_future_large.png"
+  },
+  {
+    "id": 1506,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1525,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1551,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1608,
+    "previewUrl": "https://www.explainxkcd.com/wiki/images/4/41/hoverboard.png"
+  },
+  {
+    "id": 1663,
+    "previewUrl": "https://www.explainxkcd.com/wiki/images/c/ce/garden.png"
+  },
+  {
+    "id": 1667,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1688,
+    "largeUrl": "https://imgs.xkcd.com/comics/map_age_guide_large.png"
+  },
+  {
+    "id": 1735,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1739,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1744,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1778,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 1970,
+    "largeUrl": "https://imgs.xkcd.com/comics/name_dominos_large.png"
+  },
+  {
+    "id": 2202,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 2281,
+    "srcsetUnavailable": true
+  },
+  {
+    "id": 2642,
+    "srcsetUnavailable": true
+  }
+]
