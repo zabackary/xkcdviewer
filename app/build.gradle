@@ -50,7 +50,7 @@ android {
 
 dependencies {
     // BOM
-    def composeBom = platform('androidx.compose:compose-bom:2023.04.01')
+    def composeBom = platform('androidx.compose:compose-bom:2023.05.00')
     implementation composeBom
     androidTestImplementation composeBom
 
@@ -59,11 +59,12 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
 
     // Compose
+    // The BOM isn't used for material3 deps b/c it's not up-to-date
     implementation 'androidx.activity:activity-compose:1.7.1'
     implementation "androidx.compose.ui:ui"
     implementation "androidx.compose.ui:ui-tooling-preview"
-    implementation "androidx.compose.material3:material3"
-    implementation "androidx.compose.material3:material3-window-size-class"
+    implementation "androidx.compose.material3:material3:$material3_version"
+    implementation "androidx.compose.material3:material3-window-size-class:$material3_version"
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation "androidx.compose.material:material-icons-extended"
     implementation "androidx.compose.ui:ui-util"
