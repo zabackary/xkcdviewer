@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
+
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -44,6 +46,14 @@ android {
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    tasks.withType(KotlinCompilationTask) {
+        compilerOptions {
+            freeCompilerArgs.add("-opt-in=androidx.compose.material3.ExperimentalMaterial3Api")
+            freeCompilerArgs.add("-opt-in=com.google.accompanist.pager.ExperimentalPagerApi")
+            freeCompilerArgs.add("-opt-in=androidx.compose.animation.ExperimentalAnimationApi")
+            freeCompilerArgs.add("-opt-in=androidx.compose.ui.ExperimentalComposeUiApi")
         }
     }
 }
@@ -104,22 +114,9 @@ dependencies {
     implementation "com.google.accompanist:accompanist-webview:$accompanist_version"
 
     // Etc
-    implementation "androidx.browser:browser:1.5.0"
+    implementation "androidx.browser:browser:1.6.0"
 }
 
 kapt {
     correctErrorTypes true
-}
-
-allprojects {
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    '-opt-in=androidx.compose.material3.ExperimentalMaterial3Api',
-                    '-opt-in=com.google.accompanist.pager.ExperimentalPagerApi',
-                    '-opt-in=androidx.compose.animation.ExperimentalAnimationApi',
-                    '-opt-in=androidx.compose.ui.ExperimentalComposeUiApi'
-            ]
-        }
-    }
 }
