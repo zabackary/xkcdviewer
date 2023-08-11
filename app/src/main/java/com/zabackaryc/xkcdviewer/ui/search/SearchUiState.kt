@@ -8,6 +8,7 @@ data class SearchUiState(
     val filteredList: List<ListedComic> = listOf(),
     val offline: Boolean = false,
     val sortOrder: SortOrder = SortOrder.NewestToOldest,
-    val filteringFavorites: Boolean = false
+    val filteringFavorites: Boolean = false,
+    val favoriteComics: List<ListedComic> = listOf()
 )
 

@@ -1,85 +1,99 @@
 package com.zabackaryc.xkcdviewer.ui.comic
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
+import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.data.ListedComic
-import com.zabackaryc.xkcdviewer.utils.pagerTabIndicatorOffset
 import kotlinx.coroutines.launch
 
 @Composable
 fun ComicDetails(
     listedComic: ListedComic?,
     cachedComic: CachedComic?,
-    initialPage: Int
+    onShareRequest: suspend (Pair<ListedComic, CachedComic>) -> Unit,
+    onTranscriptOpen: suspend (String) -> Unit,
+    onExplainOpen: suspend (ListedComic) -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = initialPage)
     val coroutineScope = rememberCoroutineScope()
-    val titles = listOf("About", "Mouseover", "Transcript")
-
-    Column {
-        TabRow(
-            selectedTabIndex = pagerState.currentPage,
-            indicator = { tabPositions ->
-                TabRowDefaults.Indicator(
-                    modifier = Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
+    if (cachedComic == null || listedComic == null) {
+        // TODO: Center align this
+        CircularProgressIndicator()
+    } else {
+        Column {
+            Text(
+                text = cachedComic.mouseover, modifier = Modifier.padding(12.dp)
+            )
+            ListItem(leadingContent = {
+                Icon(
+                    imageVector = Icons.Default.Share, contentDescription = null
                 )
-            }
-        ) {
-            titles.forEachIndexed { index, title ->
-                Tab(
-                    selected = pagerState.currentPage == index,
-                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(index) } },
-                    text = { Text(text = title, maxLines = 2, overflow = TextOverflow.Ellipsis) }
-                )
-            }
-        }
-        HorizontalPager(
-            count = titles.size,
-            state = pagerState
-        ) { page ->
-            Box(
-                modifier = Modifier
-                    .height(220.dp)
-                    .verticalScroll(rememberScrollState())
-            ) {
-                if (listedComic != null && cachedComic != null) {
-                    when (page) {
-                        0 -> {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Row {
-                                    Text("Nothing here yet :)")
-                                }
-                            }
-                        }
-                        1 -> {
-                            Text(cachedComic.mouseover, modifier = Modifier.padding(16.dp))
-                        }
-                        2 -> {
-                            if (cachedComic.transcript != null && cachedComic.transcript != "") {
-                                Text(cachedComic.transcript, modifier = Modifier.padding(16.dp))
-                            } else {
-                                Text(
-                                    "This comic doesn't have a transcript.",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    modifier = Modifier.padding(16.dp)
-                                )
-                            }
-                        }
-                    }
-                } else {
-                    CircularProgressIndicator()
+            }, headlineContent = { Text(text = "Share") }, modifier = Modifier.clickable {
+                coroutineScope.launch {
+                    onShareRequest(listedComic to cachedComic)
                 }
+            })
+            ListItem(leadingContent = {
+                Icon(
+                    painter = painterResource(R.drawable.explainxkcd_icon),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }, headlineContent = { Text(text = "Explain") }, modifier = Modifier.clickable {
+                coroutineScope.launch {
+                    onExplainOpen(listedComic)
+                }
+            })
+            if (cachedComic.transcript != null && cachedComic.transcript != "") {
+                ListItem(leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.Description, contentDescription = null
+                    )
+                }, headlineContent = { Text(text = "Transcript") }, modifier = Modifier.clickable {
+                    coroutineScope.launch {
+                        onTranscriptOpen(cachedComic.transcript)
+                    }
+                })
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun ComicDetailsPreview() {
+    ComicDetails(listedComic = ListedComic(
+        id = 0, title = "Title", date = "10-01-2008", favorite = true, note = "This is a note"
+    ), cachedComic = CachedComic(
+        id = 0,
+        imgUrl = "https://imgs.xkcd.com/comics/siphon.png",
+        mouseover = "Mouseover",
+        transcript = "Someone walks into a bar. THe end.",
+        dynamicHtml = null,
+    ), onShareRequest = {}, onExplainOpen = {}, onTranscriptOpen = {})
+}
+
+@Preview
+@Composable
+fun ComicDetailsLoadingPreview() {
+    ComicDetails(listedComic = null,
+        cachedComic = null,
+        onShareRequest = {},
+        onExplainOpen = {},
+        onTranscriptOpen = {})
 }

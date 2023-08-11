@@ -25,16 +25,27 @@ class SearchViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             launch { comicsRepository.refreshComics() }
-            comicsRepository.comics.collect { list ->
-                withContext(Dispatchers.Main) {
-                    if (list.isEmpty()) {
-                        uiState = uiState.copy(offline = true)
-                    } else {
+            launch {
+                comicsRepository.comics.collect { list ->
+                    withContext(Dispatchers.Main) {
+                        if (list.isEmpty()) {
+                            uiState = uiState.copy(offline = true)
+                        } else {
+                            uiState = uiState.copy(
+                                list = list,
+                                offline = false
+                            )
+                            recomputeSortFilter()
+                        }
+                    }
+                }
+            }
+            launch {
+                comicsRepository.favoriteComics.collect { list ->
+                    withContext(Dispatchers.Main) {
                         uiState = uiState.copy(
-                            list = list,
-                            offline = false
+                            favoriteComics = list
                         )
-                        recomputeSortFilter()
                     }
                 }
             }
@@ -50,12 +61,14 @@ class SearchViewModel @Inject constructor(
                         -LocalDate.parse(a.date, dateFormatter)
                             .compareTo(LocalDate.parse(b.date, dateFormatter))
                     }
+
                     SortOrder.OldestToNewest -> Comparator { a, b ->
                         LocalDate.parse(a.date, dateFormatter)
                             .compareTo(LocalDate.parse(b.date, dateFormatter))
                     }
+
                     SortOrder.Title -> Comparator.comparing { it.title }
-                }).filter { it.title.lowercase().contains(uiState.term.lowercase()) }
+                }).filter { it.title.lowercase().contains(uiState.term.lowercase()) }.take(10)
         )
     }
 

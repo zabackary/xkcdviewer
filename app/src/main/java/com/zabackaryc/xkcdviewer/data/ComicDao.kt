@@ -21,11 +21,16 @@ interface ComicDao {
     @Query("SELECT * FROM ListedComic WHERE title LIKE :title")
     fun getAllMatchingComics(title: String): Flow<List<ListedComic>?>
 
+    @Query("SELECT * FROM ListedComic WHERE favorite = :favorited")
+    fun getFavoriteComics(
+        favorited: Boolean
+    ): Flow<List<ListedComic>>
+
     @Query("SELECT * FROM ListedComic WHERE title LIKE :title AND favorite = :favorited")
     fun getFavoritedMatchingComics(
         favorited: Boolean,
         title: String
-    ): Flow<List<ListedComic>?>
+    ): Flow<List<ListedComic>>
 
     @Query("SELECT * FROM HistoryEntry JOIN ListedComic ON HistoryEntry.comic_id = ListedComic.id")
     fun getHistory(): Flow<Map<HistoryEntry, ListedComic>>
