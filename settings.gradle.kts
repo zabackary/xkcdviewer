@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "xkcd viewer"
-include ':app'
+include(":app")
