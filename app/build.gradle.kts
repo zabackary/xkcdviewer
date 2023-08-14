@@ -1,6 +1,6 @@
 var accompanist_version = "0.28.0"
 var material3_version = "1.1.1"
-var nav_version = "2.7.0"
+var nav_version = "2.5.3"
 var room_version = "2.5.2"
 var hilt_version = "2.44"
 var retrofit_version = "2.9.0"
@@ -42,11 +42,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
         freeCompilerArgs += listOf(
             "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
             "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi",
@@ -60,7 +60,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.6"
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -121,9 +121,11 @@ dependencies {
     // Accompanist
     implementation("com.google.accompanist:accompanist-pager:$accompanist_version")
     implementation("com.google.accompanist:accompanist-webview:$accompanist_version")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanist_version")
 
     // Etc
-    implementation("androidx.browser:browser:1.6.0")
+    implementation("androidx.browser:browser:1.5.0")
+    implementation("net.engawapg.lib:zoomable:1.4.3")
 }
 
 kapt {
