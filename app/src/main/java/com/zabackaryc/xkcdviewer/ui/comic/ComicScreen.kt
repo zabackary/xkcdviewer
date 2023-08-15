@@ -76,79 +76,85 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         val (listedComic, _cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
             ?: (null to null)
 
-        Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }, topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = listedComic?.title ?: "",
-                            style = MaterialTheme.typography.headlineSmall,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = if (listedComic != null) "#${listedComic.id} · ${listedComic.date}" else "",
-                            style = MaterialTheme.typography.titleSmall,
-                            maxLines = 1
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigationUp) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                actions = {
-                    IconToggleButton(checked = listedComic?.favorite ?: false, onCheckedChange = {
-                        viewModel.setFavoriteComic(
-                            pagerState.currentPage + 1, it
-                        )
-                        coroutineScope.launch {
-                            snackbarHostState.showSnackbar(
-                                if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
-                                else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
-                                else ""
+        Scaffold(
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = listedComic?.title ?: "",
+                                style = MaterialTheme.typography.headlineSmall,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = if (listedComic != null) "#${listedComic.id} · ${listedComic.date}" else "",
+                                style = MaterialTheme.typography.titleSmall,
+                                maxLines = 1
                             )
                         }
-                    }) {
-                        if (listedComic?.favorite == true) {
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigationUp) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        }
+                    },
+                    actions = {
+                        IconToggleButton(
+                            checked = listedComic?.favorite ?: false,
+                            onCheckedChange = {
+                                viewModel.setFavoriteComic(
+                                    pagerState.currentPage + 1, it
+                                )
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
+                                        else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
+                                        else ""
+                                    )
+                                }
+                            }) {
+                            if (listedComic?.favorite == true) {
+                                Icon(
+                                    imageVector = Icons.Default.Favorite,
+                                    contentDescription = "Favorited"
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.FavoriteBorder,
+                                    contentDescription = "Click to favorite"
+                                )
+                            }
+                        }
+                        IconButton(onClick = {
+                            comicDetailsOpen = true
+                            comicDetailsCurrentComicId = listedComic?.id
+                        }) {
                             Icon(
-                                imageVector = Icons.Default.Favorite,
-                                contentDescription = "Favorited"
-                            )
-                        } else {
-                            Icon(
-                                imageVector = Icons.Default.FavoriteBorder,
-                                contentDescription = "Click to favorite"
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More options"
                             )
                         }
                     }
-                    IconButton(onClick = {
-                        comicDetailsOpen = true
-                        comicDetailsCurrentComicId = listedComic?.id
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More options"
-                        )
-                    }
-                },
-            )
-        }, floatingActionButton = {
-            val shouldShowLabel = (context.getActivity()
-                ?.let { calculateWindowSizeClass(activity = it).widthSizeClass }) != WindowWidthSizeClass.Compact
-            ExtendedFloatingActionButton(onClick = {
-                coroutineScope.launch {
-                    pagerState.scrollToPage(
-                        page = (1..totalComics).random(),
-                    )
-                }
-            }, text = { Text(text = "Randomize") }, icon = {
-                Icon(
-                    imageVector = Icons.Default.Shuffle, contentDescription = "Random comic"
                 )
-            }, expanded = shouldShowLabel)
-        }) { paddingValues ->
+            },
+            floatingActionButton = {
+                val shouldShowLabel = (context.getActivity()
+                    ?.let { calculateWindowSizeClass(activity = it).widthSizeClass }) != WindowWidthSizeClass.Compact
+                ExtendedFloatingActionButton(onClick = {
+                    coroutineScope.launch {
+                        pagerState.scrollToPage(
+                            page = (1..totalComics).random(),
+                        )
+                    }
+                }, text = { Text(text = "Randomize") }, icon = {
+                    Icon(
+                        imageVector = Icons.Default.Shuffle, contentDescription = "Random comic"
+                    )
+                }, expanded = shouldShowLabel)
+            }
+        ) { paddingValues ->
             HorizontalPager(
                 count = totalComics,
                 modifier = Modifier.padding(paddingValues),
