@@ -1,12 +1,12 @@
-var accompanist_version = "0.28.0"
-var material3_version = "1.1.1"
-var nav_version = "2.5.3"
-var room_version = "2.5.2"
-var hilt_version = "2.44"
-var retrofit_version = "2.9.0"
-var okhttp3_version = "4.10.0"
-var gson_version = "2.10"
-var jsoup_version = "1.15.3"
+val accompanistVersion = "0.28.0"
+val material3Version = "1.1.1"
+val navVersion = "2.5.3"
+val roomVersion = "2.5.2"
+val hiltVersion = "2.44"
+val retrofitVersion = "2.9.0"
+val okhttp3Version = "4.10.0"
+val gsonVersion = "2.10"
+val jsoupVersion = "1.15.3"
 
 plugins {
     id("com.android.application")
@@ -17,12 +17,12 @@ plugins {
 
 android {
     namespace = "com.zabackaryc.xkcdviewer"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.zabackaryc.xkcdviewer"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -71,7 +71,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     // BOM
-    var composeBom = platform("androidx.compose:compose-bom:2023.05.00")
+    val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -84,9 +84,9 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:$material3_version")
-    implementation("androidx.compose.material3:material3-window-size-class:$material3_version")
-    implementation("androidx.navigation:navigation-compose:$nav_version")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3-window-size-class")
+    implementation("androidx.navigation:navigation-compose:$navVersion")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.ui:ui-util")
 
@@ -99,29 +99,29 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Dagger/Hilt
-    implementation("com.google.dagger:hilt-android:$hilt_version")
-    kapt("com.google.dagger:hilt-compiler:$hilt_version")
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // Room
-    implementation("androidx.room:room-runtime:$room_version")
-    kapt("androidx.room:room-compiler:$room_version")
-    implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-runtime:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
 
     // Networking
-    implementation("com.squareup.retrofit2:retrofit:$retrofit_version")
-    implementation("com.squareup.retrofit2:converter-gson:$retrofit_version")
-    implementation("com.squareup.okhttp3:okhttp:$okhttp3_version")
-    implementation("com.squareup.okhttp3:logging-interceptor:$okhttp3_version")
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+    implementation("com.squareup.okhttp3:okhttp:$okhttp3Version")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okhttp3Version")
     implementation("com.squareup.okio:okio:3.3.0")
-    implementation("com.google.code.gson:gson:$gson_version")
-    implementation("org.jsoup:jsoup:$jsoup_version")
+    implementation("com.google.code.gson:gson:$gsonVersion")
+    implementation("org.jsoup:jsoup:$jsoupVersion")
     implementation("io.coil-kt:coil-compose:2.2.2")
 
     // Accompanist
-    implementation("com.google.accompanist:accompanist-pager:$accompanist_version")
-    implementation("com.google.accompanist:accompanist-webview:$accompanist_version")
-    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanist_version")
+    implementation("com.google.accompanist:accompanist-pager:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-webview:$accompanistVersion")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:$accompanistVersion")
 
     // Etc
     implementation("androidx.browser:browser:1.5.0")
