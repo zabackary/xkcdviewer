@@ -3,6 +3,8 @@ package com.zabackaryc.xkcdviewer.ui.comic
 import android.annotation.SuppressLint
 import android.text.Html.escapeHtml
 import android.util.Log
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +18,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
@@ -27,7 +32,10 @@ import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.utils.Constant
 import com.zabackaryc.xkcdviewer.utils.DarkThemeTransformation
 import com.zabackaryc.xkcdviewer.utils.exceptions.XkcdExceptions
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
+@OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ComicItem(
@@ -59,6 +67,7 @@ fun ComicItem(
             null
         }
     }
+    val zoomState = rememberZoomState()
     val dynamicHtmlModel = remember(cachedComic) { cachedComic?.getDynamicHtmlModel() }
     if (cachedComic != null && dynamicHtmlModel != null) {
         val html = remember(dynamicHtmlModel) {
@@ -85,54 +94,53 @@ fun ComicItem(
         )
         WebView(
             state = webViewState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             captureBackPresses = false,
             onCreated = { it.settings.javaScriptEnabled = true }
         )
     } else {
-        ZoomableBox(
-            modifier = modifier.fillMaxSize(),
-            setScrollEnabled = setScrollEnabled,
-            isRotatable = true,
-            onLongPress = {
-                showComicDetails()
-            },
-            onTransformChange = {
-                setElevatedAppBar(it != Transform(1f, 0f, 0f, 0f))
-            }
-        ) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imgUrl)
-                    .allowHardware(false) // Disable hardware bitmaps so pixels can be read
-                    .transformations(DarkThemeTransformation(isSystemInDarkTheme()))
-                    .build(),
-                contentDescription = cachedComic?.transcript,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .rotate(exception?.rotate?.toFloat() ?: 0f)
-            ) {
-                if (painter.state is AsyncImagePainter.State.Loading || cachedComic == null) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) { CircularProgressIndicator() }
-                } else if (painter.state is AsyncImagePainter.State.Error) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ErrorOutline,
-                            contentDescription = "Failed to load image."
-                        )
-                    }
-                } else {
-                    SubcomposeAsyncImageContent()
+        val hapticFeedback = LocalHapticFeedback.current
+        SubcomposeAsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(imgUrl)
+                .allowHardware(false) // Disable hardware bitmaps so pixels can be read
+                .transformations(DarkThemeTransformation(isSystemInDarkTheme()))
+                .build(),
+            contentDescription = cachedComic?.transcript,
+            modifier = modifier
+                .fillMaxSize()
+                .rotate(exception?.rotate?.toFloat() ?: 0f)
+                .zoomable(zoomState)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                            showComicDetails()
+                        }
+                    )
                 }
+        ) {
+            if (painter.state is AsyncImagePainter.State.Loading || cachedComic == null) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) { CircularProgressIndicator() }
+            } else if (painter.state is AsyncImagePainter.State.Error) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ErrorOutline,
+                        contentDescription = "Failed to load image."
+                    )
+                }
+            } else {
+                SubcomposeAsyncImageContent()
             }
         }
+
     }
 }
