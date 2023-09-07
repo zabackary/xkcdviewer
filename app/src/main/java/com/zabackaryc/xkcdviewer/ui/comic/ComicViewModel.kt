@@ -36,7 +36,7 @@ class ComicViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val initialComicId = savedStateHandle.get<Int>(Argument.COMIC_ID)
+    private val initialComicId = savedStateHandle.get<Int>(Argument.ComicId.name)
 
     var uiState by mutableStateOf(ComicUiState())
         private set
