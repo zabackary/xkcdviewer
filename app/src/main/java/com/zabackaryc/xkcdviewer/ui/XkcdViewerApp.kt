@@ -2,9 +2,16 @@ package com.zabackaryc.xkcdviewer.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Article
@@ -18,9 +25,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.EmptyBuildDrawCacheParams.density
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -40,16 +47,20 @@ fun XkcdViewerApp() {
     val navController = rememberNavController()
     val topLevelItems = listOf(Route.ComicList, Route.WhatIfList, Route.Settings)
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val navBarVisible = topLevelItems.any { it.route == currentDestination?.route }
+
     Scaffold(
         bottomBar = {
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentDestination = navBackStackEntry?.destination
             AnimatedVisibility(
-                visible = topLevelItems.any { it.route == currentDestination?.route },
+                visible = navBarVisible,
                 enter = slideInVertically {
-                    with(density) { -40.dp.roundToPx() }
+                    it
                 },
-                exit = slideOutVertically()
+                exit = slideOutVertically {
+                    it
+                }
             ) {
                 NavigationBar {
                     topLevelItems.forEach { route ->
@@ -81,7 +92,23 @@ fun XkcdViewerApp() {
         NavHost(
             navController = navController,
             startDestination = Route.ComicList.route,
-            modifier = Modifier.padding(PaddingValues(bottom = innerPadding.calculateBottomPadding()))
+            modifier = Modifier
+                .padding(
+                    if (navBarVisible) PaddingValues(bottom = innerPadding.calculateBottomPadding())
+                    else PaddingValues(0.dp)
+                )
+                .fillMaxSize(),
+            enterTransition = {
+                fadeIn(
+                    animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
+                ) + scaleIn(
+                    initialScale = 0.92f,
+                    animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
+                )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(90, easing = FastOutLinearInEasing))
+            }
         ) {
             composable(route = "${Route.Comic.route}/{${Argument.ComicId.name}}",
                 arguments = listOf(
