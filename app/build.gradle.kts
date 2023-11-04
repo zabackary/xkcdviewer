@@ -1,6 +1,6 @@
 val accompanistVersion = "0.28.0"
 val material3Version = "1.1.1"
-val navVersion = "2.5.3"
+val navVersion = "2.7.5"
 val roomVersion = "2.5.2"
 val hiltVersion = "2.44"
 val retrofitVersion = "2.9.0"
