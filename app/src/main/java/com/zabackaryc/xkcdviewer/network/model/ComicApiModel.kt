@@ -35,8 +35,10 @@ data class ComicApiModel(
         id = num,
         mouseover = alt,
         imgUrl = img,
-        transcript = transcript,
-        dynamicHtml = if (extraParts != null) Gson().toJson(extraParts) else null
+        transcript = transcript.ifEmpty { null },
+        dynamicHtml = if (extraParts != null) Gson().toJson(extraParts) else null,
+        newsContent = news.ifEmpty { null },
+        link = link.ifEmpty { null }
     )
 
     fun toListedComic() = ListedComic(

@@ -21,6 +21,12 @@ data class CachedComic(
     @ColumnInfo(name = "transcript")
     val transcript: String?,
 
+    @ColumnInfo(name = "newsContent")
+    val newsContent: String?,
+
+    @ColumnInfo(name = "link")
+    val link: String?,
+
     /**
      * This is JSON.
      */
