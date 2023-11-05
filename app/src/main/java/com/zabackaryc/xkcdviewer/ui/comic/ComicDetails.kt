@@ -1,11 +1,15 @@
 package com.zabackaryc.xkcdviewer.ui.comic
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -13,6 +17,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,12 +33,20 @@ fun ComicDetails(
     cachedComic: CachedComic?,
     onShareRequest: suspend (Pair<ListedComic, CachedComic>) -> Unit,
     onTranscriptOpen: suspend (String) -> Unit,
+    onLinkOpen: suspend (String) -> Unit,
     onExplainOpen: suspend (ListedComic) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     if (cachedComic == null || listedComic == null) {
-        // TODO: Center align this
-        CircularProgressIndicator()
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator()
+        }
     } else {
         Column {
             Text(
@@ -59,7 +72,18 @@ fun ComicDetails(
                     onExplainOpen(listedComic)
                 }
             })
-            if (cachedComic.transcript != null && cachedComic.transcript != "") {
+            if (cachedComic.link != null) {
+                ListItem(leadingContent = {
+                    Icon(
+                        imageVector = Icons.Default.OpenInNew, contentDescription = null
+                    )
+                }, headlineContent = { Text(text = "Linked URL") }, modifier = Modifier.clickable {
+                    coroutineScope.launch {
+                        onLinkOpen(cachedComic.link)
+                    }
+                })
+            }
+            if (cachedComic.transcript != null) {
                 ListItem(leadingContent = {
                     Icon(
                         imageVector = Icons.Default.Description, contentDescription = null
@@ -82,10 +106,12 @@ fun ComicDetailsPreview() {
     ), cachedComic = CachedComic(
         id = 0,
         imgUrl = "https://imgs.xkcd.com/comics/siphon.png",
-        mouseover = "Mouseover",
-        transcript = "Someone walks into a bar. THe end.",
+        mouseover = "Mouseover text lives here",
+        transcript = "Example transcript.",
         dynamicHtml = null,
-    ), onShareRequest = {}, onExplainOpen = {}, onTranscriptOpen = {})
+        link = null,
+        newsContent = null
+    ), onShareRequest = {}, onExplainOpen = {}, onTranscriptOpen = {}, onLinkOpen = {})
 }
 
 @Preview
@@ -95,5 +121,5 @@ fun ComicDetailsLoadingPreview() {
         cachedComic = null,
         onShareRequest = {},
         onExplainOpen = {},
-        onTranscriptOpen = {})
+        onTranscriptOpen = {}, onLinkOpen = {})
 }

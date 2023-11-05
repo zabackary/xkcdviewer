@@ -143,4 +143,12 @@ class ComicViewModel @Inject constructor(
             null
         )
     }
+
+    fun comicLink(context: Context, url: String) {
+        startActivity(
+            context,
+            Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+            null
+        )
+    }
 }

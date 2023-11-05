@@ -197,6 +197,11 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             viewModel.explainComic(context, it)
                             comicDetailsSheetState.hide()
                             comicDetailsOpen = false
+                        },
+                        onLinkOpen = {
+                            viewModel.comicLink(context, it)
+                            comicDetailsSheetState.hide()
+                            comicDetailsOpen = false
                         })
                 }
             }
