@@ -16,19 +16,35 @@ import com.alorma.compose.settings.storage.preferences.rememberPreferenceBoolean
 import com.alorma.compose.settings.storage.preferences.rememberPreferenceIntSettingState
 import com.alorma.compose.settings.ui.SettingsList
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.zabackaryc.xkcdviewer.utils.SettingsItem
 
 @Composable
 fun SettingsScreen() {
     val comicActionsExpandState =
-        rememberPreferenceBooleanSettingState(key = "comic:actions-expand", defaultValue = true)
+        rememberPreferenceBooleanSettingState(
+            key = SettingsItem.ComicActionsExpand.preferenceKey,
+            defaultValue = SettingsItem.ComicActionsExpand.defaultValue
+        )
     val comicSaveHistoryState =
-        rememberPreferenceBooleanSettingState(key = "comic:save-history", defaultValue = true)
+        rememberPreferenceBooleanSettingState(
+            key = SettingsItem.ComicSaveHistory.preferenceKey,
+            defaultValue = SettingsItem.ComicSaveHistory.defaultValue
+        )
     val comicDownloadState =
-        rememberPreferenceIntSettingState(key = "comic:download", defaultValue = 2)
+        rememberPreferenceIntSettingState(
+            key = SettingsItem.ComicDownload.preferenceKey,
+            defaultValue = SettingsItem.ComicDownload.defaultValue
+        )
     val comicDarkThemeState =
-        rememberPreferenceBooleanSettingState(key = "comic:dark-theme", defaultValue = true)
+        rememberPreferenceBooleanSettingState(
+            key = SettingsItem.ComicDarkTheme.preferenceKey,
+            defaultValue = SettingsItem.ComicDarkTheme.defaultValue
+        )
     val articleDarkThemeState =
-        rememberPreferenceBooleanSettingState(key = "article:dark-theme", defaultValue = true)
+        rememberPreferenceBooleanSettingState(
+            key = SettingsItem.ArticleDarkTheme.preferenceKey,
+            defaultValue = SettingsItem.ArticleDarkTheme.defaultValue
+        )
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -47,7 +63,7 @@ fun SettingsScreen() {
             item {
                 Text(
                     text = "Comic viewer",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp)
                 )
             }
@@ -82,7 +98,7 @@ fun SettingsScreen() {
             item {
                 Text(
                     text = "What If reader",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp),
                 )
             }
