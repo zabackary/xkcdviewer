@@ -1,6 +1,5 @@
 package com.zabackaryc.xkcdviewer.ui.settings
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.LargeTopAppBar
@@ -58,7 +57,6 @@ fun SettingsScreen() {
     ) { innerPadding ->
         LazyColumn(
             contentPadding = innerPadding,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Text(
