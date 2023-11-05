@@ -126,6 +126,8 @@ dependencies {
     // Etc
     implementation("androidx.browser:browser:1.5.0")
     implementation("net.engawapg.lib:zoomable:1.4.3")
+    implementation("com.github.alorma:compose-settings-ui-m3:1.0.2")
+    implementation("com.github.alorma:compose-settings-storage-preferences:1.0.2")
 }
 
 kapt {

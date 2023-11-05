@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.ui.comic.ComicScreen
 import com.zabackaryc.xkcdviewer.ui.search.SearchScreen
+import com.zabackaryc.xkcdviewer.ui.settings.SettingsScreen
 
 @Composable
 fun XkcdViewerApp() {
@@ -149,7 +150,7 @@ fun XkcdViewerApp() {
                 Text("what if listing")
             }
             composable(Route.Settings.route) { _ ->
-                Text("settings")
+                SettingsScreen()
             }
         }
     }
