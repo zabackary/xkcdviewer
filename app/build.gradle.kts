@@ -11,7 +11,7 @@ val jsoupVersion = "1.15.3"
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
 }
 
@@ -71,7 +71,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 
     // BOM
-    val composeBom = platform("androidx.compose:compose-bom:2023.08.00")
+    val composeBom = platform("androidx.compose:compose-bom:2023.10.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
@@ -81,7 +81,7 @@ dependencies {
 
     // Compose
     // The BOM isn"t used for material3 deps b/c it"s not up-to-date
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.8.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
@@ -100,12 +100,12 @@ dependencies {
 
     // Dagger/Hilt
     implementation("com.google.dagger:hilt-android:$hiltVersion")
-    kapt("com.google.dagger:hilt-compiler:$hiltVersion")
+    ksp("com.google.dagger:hilt-compiler:$hiltVersion")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
     // Room
     implementation("androidx.room:room-runtime:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
 
     // Networking
@@ -128,8 +128,4 @@ dependencies {
     implementation("net.engawapg.lib:zoomable:1.4.3")
     implementation("com.github.alorma:compose-settings-ui-m3:1.0.2")
     implementation("com.github.alorma:compose-settings-storage-preferences:1.0.2")
-}
-
-kapt {
-    correctErrorTypes = true
 }
