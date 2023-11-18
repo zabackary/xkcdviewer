@@ -11,6 +11,7 @@ import android.text.style.TypefaceSpan
 import android.text.style.URLSpan
 import android.text.style.UnderlineSpan
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import androidx.core.text.HtmlCompat
 
 private const val URL_TAG = "url_tag"
@@ -31,13 +31,13 @@ private const val URL_TAG = "url_tag"
 fun HtmlText(
     text: String,
     modifier: Modifier = Modifier,
-    style: TextStyle = TextStyle.Default,
+    style: TextStyle = LocalTextStyle.current,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     linkClicked: ((String) -> Unit)? = null,
-    fontSize: TextUnit = 14.sp,
+    fontSize: TextUnit = LocalTextStyle.current.fontSize,
     flags: Int = HtmlCompat.FROM_HTML_MODE_COMPACT,
     urlSpanStyle: SpanStyle = SpanStyle(
         color = MaterialTheme.colorScheme.primary,
