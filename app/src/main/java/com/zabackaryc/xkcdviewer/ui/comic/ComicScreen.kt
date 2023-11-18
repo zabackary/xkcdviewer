@@ -23,6 +23,7 @@ import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -45,6 +46,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import com.zabackaryc.xkcdviewer.utils.SettingsItem
 import com.zabackaryc.xkcdviewer.utils.getActivity
 import kotlinx.coroutines.launch
 
@@ -78,8 +80,26 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         val (listedComic, cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
             ?: (null to null)
 
+        val userWantsMetadataPopup = SettingsItem.ComicMetadataPopup.currentValue
         val hasMetadata = cachedComic?.link != null || cachedComic?.newsContent != null
-
+        LaunchedEffect(hasMetadata, listedComic?.id) {
+            if (hasMetadata && userWantsMetadataPopup && cachedComic != null) {
+                if (snackbarHostState.showSnackbar(
+                        message = when ((cachedComic.link != null) to (cachedComic.newsContent != null)) {
+                            true to false -> "This comic is a clickable link."
+                            false to true -> "This comic has a special header text."
+                            true to true -> "This comic is clickable and has news attached."
+                            else -> ""
+                        },
+                        actionLabel = "Show",
+                        withDismissAction = true
+                    ) == SnackbarResult.ActionPerformed
+                ) {
+                    comicDetailsCurrentComicId = cachedComic.id
+                    comicDetailsOpen = true
+                }
+            }
+        }
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
@@ -147,9 +167,11 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             }
                         }
                         if (hasMetadata) {
-                            PlainTooltipBox(tooltip = {
-                                Text("More options. This comic has extra metadata")
-                            }) {
+                            PlainTooltipBox(
+                                tooltip = {
+                                    Text("More options. This comic has extra metadata")
+                                }
+                            ) {
                                 FilledTonalIconButton(
                                     onClick = {
                                         comicDetailsOpen = true
@@ -164,9 +186,11 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                 }
                             }
                         } else {
-                            PlainTooltipBox(tooltip = {
-                                Text("More options")
-                            }) {
+                            PlainTooltipBox(
+                                tooltip = {
+                                    Text("More options")
+                                }
+                            ) {
                                 IconButton(
                                     onClick = {
                                         comicDetailsOpen = true
@@ -181,6 +205,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                 }
                             }
                         }
+
                     }
                 )
             },

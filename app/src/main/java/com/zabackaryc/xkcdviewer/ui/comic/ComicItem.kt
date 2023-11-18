@@ -36,6 +36,7 @@ import com.google.accompanist.web.WebView
 import com.google.accompanist.web.rememberWebViewStateWithHTMLData
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.utils.Constant
+import com.zabackaryc.xkcdviewer.utils.SettingsItem
 import com.zabackaryc.xkcdviewer.utils.ThemingTransformation
 import com.zabackaryc.xkcdviewer.utils.exceptions.XkcdExceptions
 import net.engawapg.lib.zoomable.rememberZoomState
@@ -50,6 +51,7 @@ fun ComicItem(
     modifier: Modifier = Modifier,
     setElevatedAppBar: (Boolean) -> Unit = {},
 ) {
+    val shouldPreprocessImage = SettingsItem.ComicDarkTheme.currentValue
     val context = LocalContext.current
     val exception = remember(context, cachedComic) {
         XkcdExceptions.getExceptions(context).firstOrNull { it.id == cachedComic?.id }
@@ -74,7 +76,7 @@ fun ComicItem(
     }
     val zoomState = rememberZoomState()
     val dynamicHtmlModel = remember(cachedComic) { cachedComic?.getDynamicHtmlModel() }
-    if (cachedComic != null && dynamicHtmlModel != null) {
+    if (cachedComic != null && dynamicHtmlModel != null && imgUrl != null) {
         val html = remember(dynamicHtmlModel) {
             """
 <!DOCTYPE html>
@@ -104,7 +106,7 @@ fun ComicItem(
             onCreated = { it.settings.javaScriptEnabled = true }
         )
     } else {
-        val imageModel = ImageRequest.Builder(LocalContext.current)
+        val imageModel: Any? = if (shouldPreprocessImage) ImageRequest.Builder(LocalContext.current)
             .data(imgUrl)
             .allowHardware(false) // Disable hardware bitmaps so pixels can be read
             .transformations(
@@ -115,6 +117,7 @@ fun ComicItem(
                 )
             )
             .build()
+        else imgUrl
         val hapticFeedback = LocalHapticFeedback.current
         SubcomposeAsyncImage(
             model = imageModel,
