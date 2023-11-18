@@ -2,7 +2,7 @@ val accompanistVersion = "0.28.0"
 val material3Version = "1.1.1"
 val navVersion = "2.7.5"
 val roomVersion = "2.5.2"
-val hiltVersion = "2.44"
+val hiltVersion = "2.48.1"
 val retrofitVersion = "2.9.0"
 val okhttp3Version = "4.10.0"
 val gsonVersion = "2.10"
@@ -58,7 +58,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.4.6"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
     packaging {
         resources {
@@ -81,7 +81,7 @@ dependencies {
 
     // Compose
     // The BOM isn"t used for material3 deps b/c it"s not up-to-date
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
