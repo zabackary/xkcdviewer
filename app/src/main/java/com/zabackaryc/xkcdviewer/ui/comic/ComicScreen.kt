@@ -13,11 +13,13 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -73,7 +75,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
 
         val context = LocalContext.current
 
-        val (listedComic, _cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
+        val (listedComic, cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
             ?: (null to null)
 
         Scaffold(
@@ -96,45 +98,86 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                         }
                     },
                     navigationIcon = {
-                        IconButton(onClick = onNavigationUp) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        PlainTooltipBox(
+                            tooltip = {
+                                Text("Back")
+                            }
+                        ) {
+                            IconButton(
+                                onClick = onNavigationUp,
+                                modifier = Modifier.tooltipAnchor()
+                            ) {
+                                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            }
                         }
                     },
                     actions = {
-                        IconToggleButton(
-                            checked = listedComic?.favorite ?: false,
-                            onCheckedChange = {
-                                viewModel.setFavoriteComic(
-                                    pagerState.currentPage + 1, it
-                                )
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
-                                        else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
-                                        else ""
+                        PlainTooltipBox(tooltip = {
+                            Text(if (listedComic?.favorite == true) "Remove favorite" else "Favorite comic")
+                        }) {
+                            IconToggleButton(
+                                checked = listedComic?.favorite ?: false,
+                                onCheckedChange = {
+                                    viewModel.setFavoriteComic(
+                                        pagerState.currentPage + 1, it
+                                    )
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
+                                            else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
+                                            else ""
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.tooltipAnchor()
+                            ) {
+                                if (listedComic?.favorite == true) {
+                                    Icon(
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = "Favorited"
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.FavoriteBorder,
+                                        contentDescription = "Click to favorite"
                                     )
                                 }
-                            }) {
-                            if (listedComic?.favorite == true) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = "Favorited"
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.FavoriteBorder,
-                                    contentDescription = "Click to favorite"
-                                )
                             }
                         }
-                        IconButton(onClick = {
-                            comicDetailsOpen = true
-                            comicDetailsCurrentComicId = listedComic?.id
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.MoreVert,
-                                contentDescription = "More options"
-                            )
+                        if (cachedComic?.link != null) {
+                            PlainTooltipBox(tooltip = {
+                                Text("More options. This comic has extra metadata")
+                            }) {
+                                FilledTonalIconButton(
+                                    onClick = {
+                                        comicDetailsOpen = true
+                                        comicDetailsCurrentComicId = listedComic?.id
+                                    },
+                                    modifier = Modifier.tooltipAnchor()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "More options (comic has extra metadata)"
+                                    )
+                                }
+                            }
+                        } else {
+                            PlainTooltipBox(tooltip = {
+                                Text("More options")
+                            }) {
+                                IconButton(
+                                    onClick = {
+                                        comicDetailsOpen = true
+                                        comicDetailsCurrentComicId = listedComic?.id
+                                    },
+                                    modifier = Modifier.tooltipAnchor()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "More options"
+                                    )
+                                }
+                            }
                         }
                     }
                 )
