@@ -11,39 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import com.alorma.compose.settings.storage.preferences.rememberPreferenceBooleanSettingState
-import com.alorma.compose.settings.storage.preferences.rememberPreferenceIntSettingState
 import com.alorma.compose.settings.ui.SettingsList
 import com.alorma.compose.settings.ui.SettingsSwitch
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
 
 @Composable
 fun SettingsScreen() {
-    val comicActionsExpandState =
-        rememberPreferenceBooleanSettingState(
-            key = SettingsItem.ComicActionsExpand.preferenceKey,
-            defaultValue = SettingsItem.ComicActionsExpand.defaultValue
-        )
-    val comicSaveHistoryState =
-        rememberPreferenceBooleanSettingState(
-            key = SettingsItem.ComicSaveHistory.preferenceKey,
-            defaultValue = SettingsItem.ComicSaveHistory.defaultValue
-        )
-    val comicDownloadState =
-        rememberPreferenceIntSettingState(
-            key = SettingsItem.ComicDownload.preferenceKey,
-            defaultValue = SettingsItem.ComicDownload.defaultValue
-        )
-    val comicDarkThemeState =
-        rememberPreferenceBooleanSettingState(
-            key = SettingsItem.ComicDarkTheme.preferenceKey,
-            defaultValue = SettingsItem.ComicDarkTheme.defaultValue
-        )
-    val articleDarkThemeState =
-        rememberPreferenceBooleanSettingState(
-            key = SettingsItem.ArticleDarkTheme.preferenceKey,
-            defaultValue = SettingsItem.ArticleDarkTheme.defaultValue
-        )
+    val appNewsBannerState = SettingsItem.AppNewsBanner.rememberPreferenceState()
+    val comicActionsExpandState = SettingsItem.ComicActionsExpand.rememberPreferenceState()
+    val comicSaveHistoryState = SettingsItem.ComicSaveHistory.rememberPreferenceState()
+    val comicDownloadState = SettingsItem.ComicDownload.rememberPreferenceState()
+    val comicDarkThemeState = SettingsItem.ComicDarkTheme.rememberPreferenceState()
+    val comicMetadataPopupState = SettingsItem.ComicMetadataPopup.rememberPreferenceState()
+    val articleDarkThemeState = SettingsItem.ArticleDarkTheme.rememberPreferenceState()
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -58,6 +38,20 @@ fun SettingsScreen() {
         LazyColumn(
             contentPadding = innerPadding,
         ) {
+            item {
+                Text(
+                    text = "General preferences",
+                    style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
+                    modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp)
+                )
+            }
+            item {
+                SettingsSwitch(
+                    title = { Text("Show news") },
+                    subtitle = { Text("Shows the news shown below the xkcd logo on xkcd.com on the homepage, if any") },
+                    state = appNewsBannerState
+                )
+            }
             item {
                 Text(
                     text = "Comic viewer",
@@ -91,6 +85,13 @@ fun SettingsScreen() {
                     title = { Text("Download comics for offline viewing") },
                     items = listOf("All comics", "Only favorites", "Never"),
                     state = comicDownloadState
+                )
+            }
+            item {
+                SettingsSwitch(
+                    title = { Text("Show metadata popup") },
+                    subtitle = { Text("Shows a popup when a comic with extra metadata like a link or news is opened") },
+                    state = comicMetadataPopupState
                 )
             }
             item {

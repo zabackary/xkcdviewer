@@ -46,7 +46,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.alorma.compose.settings.storage.preferences.rememberPreferenceBooleanSettingState
 import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.data.ListedComic
@@ -63,10 +62,7 @@ fun ComicDetails(
     onLinkOpen: suspend (String) -> Unit,
     onExplainOpen: suspend (ListedComic) -> Unit
 ) {
-    val expandActionsByDefault = rememberPreferenceBooleanSettingState(
-        key = SettingsItem.ComicActionsExpand.preferenceKey,
-        defaultValue = SettingsItem.ComicActionsExpand.defaultValue
-    ).value
+    val expandActionsByDefault = SettingsItem.ComicActionsExpand.currentValue
     var actionsExpanded by remember { mutableStateOf(expandActionsByDefault) }
 
     if (cachedComic == null || listedComic == null) {
