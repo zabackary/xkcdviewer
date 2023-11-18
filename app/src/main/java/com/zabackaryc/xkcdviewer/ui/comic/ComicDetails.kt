@@ -1,6 +1,9 @@
 package com.zabackaryc.xkcdviewer.ui.comic
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
@@ -21,7 +25,9 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,16 +37,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.alorma.compose.settings.storage.preferences.rememberPreferenceBooleanSettingState
 import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.data.ListedComic
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
+import com.zabackaryc.xkcdviewer.utils.htmltext.HtmlText
 import kotlinx.coroutines.launch
 
 @Composable
@@ -73,6 +84,9 @@ fun ComicDetails(
             Text(
                 text = cachedComic.mouseover, modifier = Modifier.padding(12.dp)
             )
+            if (cachedComic.newsContent != null) {
+                NewsBubble(cachedComic.newsContent)
+            }
             ComicActions(
                 listedComic = listedComic,
                 cachedComic = cachedComic,
@@ -238,6 +252,55 @@ fun ComicAction(
             }
         }
     }
+}
+
+@Composable
+fun NewsBubble(content: String, modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier
+            .padding(8.dp)
+            .clip(MaterialTheme.shapes.large)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Newspaper,
+            contentDescription = null
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            ProvideTextStyle(value = TextStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
+                Text(
+                    text = "Header text news",
+                    style = MaterialTheme.typography.labelSmall
+                )
+                val context = LocalContext.current
+                HtmlText(
+                    text = content,
+                    linkClicked = {
+                        ContextCompat.startActivity(
+                            context,
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse(it)
+                            ),
+                            null
+                        )
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun NewsBubblePreview() {
+    NewsBubble(content = "This is fake news!! It's not real!")
 }
 
 @Preview

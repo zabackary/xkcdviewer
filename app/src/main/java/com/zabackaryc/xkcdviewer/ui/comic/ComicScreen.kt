@@ -78,6 +78,8 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         val (listedComic, cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
             ?: (null to null)
 
+        val hasMetadata = cachedComic?.link != null || cachedComic?.newsContent != null
+
         Scaffold(
             snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
@@ -144,7 +146,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                 }
                             }
                         }
-                        if (cachedComic?.link != null) {
+                        if (hasMetadata) {
                             PlainTooltipBox(tooltip = {
                                 Text("More options. This comic has extra metadata")
                             }) {
