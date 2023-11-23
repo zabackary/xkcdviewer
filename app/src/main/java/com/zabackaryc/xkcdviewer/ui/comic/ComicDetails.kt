@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,8 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Newspaper
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
@@ -146,7 +149,8 @@ fun ComicActions(
                         }
                     },
                     imageVector = Icons.Default.OpenInNew,
-                    renderAsExpanded = renderAsExpanded
+                    renderAsExpanded = renderAsExpanded,
+                    showBadge = true
                 )
             }
             if (cachedComic.transcript != null) {
@@ -208,6 +212,7 @@ fun ComicAction(
     renderAsExpanded: Boolean = true,
     imageVector: ImageVector? = null,
     painter: Painter? = null,
+    showBadge: Boolean = false
 ) {
     if (!((imageVector == null) xor (painter == null))) throw IllegalArgumentException("must pass imageVector or painter, but not both")
     val icon = @Composable { contentDescription: String? ->
@@ -229,7 +234,15 @@ fun ComicAction(
     if (renderAsExpanded) {
         ListItem(
             leadingContent = {
-                icon(null)
+                if (showBadge) {
+                    BadgedBox(badge = {
+                        Badge()
+                    }) {
+                        icon(null)
+                    }
+                } else {
+                    icon(null)
+                }
             },
             headlineContent = { Text(shortName) },
             modifier = modifier.clickable {
@@ -238,13 +251,26 @@ fun ComicAction(
         )
     } else {
         PlainTooltipBox(tooltip = { Text(shortName) }, modifier = modifier) {
-            FilledTonalIconButton(
-                onClick = {
-                    onClick()
-                },
-                modifier = Modifier.tooltipAnchor()
-            ) {
-                icon(actionableName)
+            val iconButton = @Composable {
+                FilledTonalIconButton(
+                    onClick = {
+                        onClick()
+                    },
+                    modifier = Modifier.tooltipAnchor()
+                ) {
+                    icon(actionableName)
+                }
+            }
+            if (showBadge) {
+                BadgedBox(badge = {
+                    Badge(
+                        modifier = Modifier.offset((-12).dp, 12.dp)
+                    )
+                }) {
+                    iconButton()
+                }
+            } else {
+                iconButton()
             }
         }
     }

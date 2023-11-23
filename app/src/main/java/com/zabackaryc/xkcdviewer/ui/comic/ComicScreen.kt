@@ -2,6 +2,7 @@ package com.zabackaryc.xkcdviewer.ui.comic
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -12,8 +13,9 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
@@ -21,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltipBox
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -92,7 +95,8 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             else -> ""
                         },
                         actionLabel = "Show",
-                        withDismissAction = true
+                        withDismissAction = true,
+                        duration = SnackbarDuration.Short
                     ) == SnackbarResult.ActionPerformed
                 ) {
                     comicDetailsCurrentComicId = cachedComic.id
@@ -172,17 +176,24 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                     Text("More options. This comic has extra metadata")
                                 }
                             ) {
-                                FilledTonalIconButton(
-                                    onClick = {
-                                        comicDetailsOpen = true
-                                        comicDetailsCurrentComicId = listedComic?.id
-                                    },
-                                    modifier = Modifier.tooltipAnchor()
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "More options (comic has extra metadata)"
+                                BadgedBox(badge = {
+                                    Badge(
+                                        modifier = Modifier.offset((-12).dp, 12.dp)
                                     )
+                                }) {
+                                    IconButton(
+                                        onClick = {
+                                            comicDetailsOpen = true
+                                            comicDetailsCurrentComicId = listedComic?.id
+                                        },
+                                        modifier = Modifier.tooltipAnchor()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = "More options (comic has extra metadata)"
+                                        )
+
+                                    }
                                 }
                             }
                         } else {
