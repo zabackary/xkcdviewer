@@ -53,8 +53,11 @@ fun ComicItem(
 ) {
     val shouldPreprocessImage = SettingsItem.ComicDarkTheme.currentValue
     val context = LocalContext.current
-    val exception = remember(context, cachedComic) {
-        XkcdExceptions.getExceptions(context).firstOrNull { it.id == cachedComic?.id }
+    val exceptions = remember(context) {
+        XkcdExceptions.getExceptions(context)
+    }
+    val exception = remember(cachedComic) {
+        exceptions.firstOrNull { it.id == cachedComic?.id }
     }
     val imgUrl = remember(cachedComic) {
         return@remember if (cachedComic != null) {
