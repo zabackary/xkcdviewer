@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+
 val accompanistVersion = "0.28.0"
 val material3Version = "1.1.1"
 val navVersion = "2.7.5"
@@ -7,6 +9,24 @@ val retrofitVersion = "2.9.0"
 val okhttp3Version = "4.10.0"
 val gsonVersion = "2.10"
 val jsoupVersion = "1.15.3"
+
+val gitDescribeTags: String by lazy {
+    val stdout = ByteArrayOutputStream()
+    rootProject.exec {
+        commandLine("git", "describe", "--tags")
+        standardOutput = stdout
+    }
+    stdout.toString().trim()
+}
+
+val gitDescribeLong: String by lazy {
+    val stdout = ByteArrayOutputStream()
+    rootProject.exec {
+        commandLine("git", "describe", "--tags", "--long")
+        standardOutput = stdout
+    }
+    stdout.toString().trim()
+}
 
 plugins {
     id("com.android.application")
@@ -25,6 +45,9 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "GIT_TAG", "\"$gitDescribeTags\"")
+        buildConfigField("String", "GIT_VERSION_LONG", "\"$gitDescribeLong\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -131,4 +154,6 @@ dependencies {
     implementation("net.engawapg.lib:zoomable:1.4.3")
     implementation("com.github.alorma:compose-settings-ui-m3:1.0.2")
     implementation("com.github.alorma:compose-settings-storage-preferences:1.0.2")
+    implementation("com.google.android.gms:play-services-oss-licenses:17.0.1")
+
 }

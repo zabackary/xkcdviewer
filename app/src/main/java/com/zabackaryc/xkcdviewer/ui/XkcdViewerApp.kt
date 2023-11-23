@@ -41,6 +41,7 @@ import androidx.navigation.navArgument
 import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.ui.comic.ComicScreen
 import com.zabackaryc.xkcdviewer.ui.search.SearchScreen
+import com.zabackaryc.xkcdviewer.ui.settings.AboutScreen
 import com.zabackaryc.xkcdviewer.ui.settings.SettingsScreen
 
 @Composable
@@ -150,7 +151,16 @@ fun XkcdViewerApp() {
                 Text("what if listing")
             }
             composable(Route.Settings.route) { _ ->
-                SettingsScreen()
+                SettingsScreen(
+                    onAboutScreenNavigation = {
+                        navController.navigate(Route.SettingsAbout.route)
+                    }
+                )
+            }
+            composable(Route.SettingsAbout.route) { _ ->
+                AboutScreen(
+                    onNavigationUp = { navController.navigateUp() }
+                )
             }
         }
     }
@@ -163,15 +173,16 @@ sealed class Route(val route: String) {
         val icon: ImageVector
     ) : Route(route)
 
-    object ComicList : NamedRoute("comic_list", R.string.comic_list, Icons.Filled.AutoStories)
-    object WhatIfList : NamedRoute("what_if_list", R.string.what_if_list, Icons.Filled.Article)
-    object Settings : NamedRoute("settings", R.string.settings, Icons.Filled.Settings)
-    object Comic : Route("comic")
-    object WhatIf : Route("what_if")
+    data object ComicList : NamedRoute("comic_list", R.string.comic_list, Icons.Filled.AutoStories)
+    data object WhatIfList : NamedRoute("what_if_list", R.string.what_if_list, Icons.Filled.Article)
+    data object Settings : NamedRoute("settings", R.string.settings, Icons.Filled.Settings)
+    data object SettingsAbout : Route("settings/about")
+    data object Comic : Route("comic")
+    data object WhatIf : Route("what_if")
 }
 
 
 sealed class Argument(val name: String, val type: NavType<*>) {
-    object ComicId : Argument("comic_id", NavType.IntType)
-    object WhatIfId : Argument("what_if_id", NavType.IntType)
+    data object ComicId : Argument("comic_id", NavType.IntType)
+    data object WhatIfId : Argument("what_if_id", NavType.IntType)
 }

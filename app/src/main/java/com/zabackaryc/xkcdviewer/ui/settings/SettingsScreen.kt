@@ -1,22 +1,36 @@
 package com.zabackaryc.xkcdviewer.ui.settings
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import com.alorma.compose.settings.ui.SettingsList
 import com.alorma.compose.settings.ui.SettingsSwitch
+import com.zabackaryc.xkcdviewer.BuildConfig
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    onAboutScreenNavigation: () -> Unit
+) {
     val appNewsBannerState = SettingsItem.AppNewsBanner.rememberPreferenceState()
     val comicActionsExpandState = SettingsItem.ComicActionsExpand.rememberPreferenceState()
     val comicSaveHistoryState = SettingsItem.ComicSaveHistory.rememberPreferenceState()
@@ -107,6 +121,42 @@ fun SettingsScreen() {
                     subtitle = { Text("Processes the article content to make it more pleasant to read in dark areas") },
                     state = articleDarkThemeState
                 )
+            }
+            item {
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .clip(MaterialTheme.shapes.large)
+                        .clickable { onAboutScreenNavigation() },
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = "About",
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                            Text(
+                                text = "xkcd viewer ${BuildConfig.GIT_TAG}",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.ChevronRight,
+                            contentDescription = "Open about view"
+                        )
+                    }
+                }
             }
         }
     }
