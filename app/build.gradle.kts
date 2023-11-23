@@ -13,7 +13,7 @@ val jsoupVersion = "1.15.3"
 val gitDescribeTags: String by lazy {
     val stdout = ByteArrayOutputStream()
     rootProject.exec {
-        commandLine("git", "describe", "--tags")
+        commandLine("git", "describe", "--tags", "--abbrev=0")
         standardOutput = stdout
     }
     stdout.toString().trim()
@@ -33,6 +33,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
+    id("com.mikepenz.aboutlibraries.plugin")
 }
 
 android {
@@ -154,6 +155,5 @@ dependencies {
     implementation("net.engawapg.lib:zoomable:1.4.3")
     implementation("com.github.alorma:compose-settings-ui-m3:1.0.2")
     implementation("com.github.alorma:compose-settings-storage-preferences:1.0.2")
-    implementation("com.google.android.gms:play-services-oss-licenses:17.0.1")
-
+    implementation("com.mikepenz:aboutlibraries-core:10.9.2")
 }

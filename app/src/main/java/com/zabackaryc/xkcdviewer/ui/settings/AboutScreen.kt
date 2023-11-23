@@ -10,7 +10,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
@@ -42,7 +44,8 @@ import com.zabackaryc.xkcdviewer.R
 
 @Composable
 fun AboutScreen(
-    onNavigationUp: () -> Unit
+    onNavigationUp: () -> Unit,
+    onLicenseNavigation: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
@@ -63,7 +66,9 @@ fun AboutScreen(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
         ) {
             Image(
                 painter = painterResource(R.drawable.ic_launcher_foreground),
@@ -139,6 +144,7 @@ fun AboutScreen(
                     )
                 },
                 modifier = Modifier.clickable {
+                    onLicenseNavigation()
                 }
             )
         }

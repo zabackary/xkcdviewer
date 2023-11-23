@@ -42,6 +42,7 @@ import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.ui.comic.ComicScreen
 import com.zabackaryc.xkcdviewer.ui.search.SearchScreen
 import com.zabackaryc.xkcdviewer.ui.settings.AboutScreen
+import com.zabackaryc.xkcdviewer.ui.settings.LicenseScreen
 import com.zabackaryc.xkcdviewer.ui.settings.SettingsScreen
 
 @Composable
@@ -159,6 +160,12 @@ fun XkcdViewerApp() {
             }
             composable(Route.SettingsAbout.route) { _ ->
                 AboutScreen(
+                    onNavigationUp = { navController.navigateUp() },
+                    onLicenseNavigation = { navController.navigate(Route.SettingsAboutLicenses.route) }
+                )
+            }
+            composable(Route.SettingsAboutLicenses.route) { _ ->
+                LicenseScreen(
                     onNavigationUp = { navController.navigateUp() }
                 )
             }
@@ -177,6 +184,7 @@ sealed class Route(val route: String) {
     data object WhatIfList : NamedRoute("what_if_list", R.string.what_if_list, Icons.Filled.Article)
     data object Settings : NamedRoute("settings", R.string.settings, Icons.Filled.Settings)
     data object SettingsAbout : Route("settings/about")
+    data object SettingsAboutLicenses : Route("settings/about/licenses")
     data object Comic : Route("comic")
     data object WhatIf : Route("what_if")
 }
