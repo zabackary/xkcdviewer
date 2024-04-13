@@ -1,14 +1,23 @@
 package com.zabackaryc.xkcdviewer.ui.search
 
+import com.zabackaryc.xkcdviewer.data.ComicDao
+import com.zabackaryc.xkcdviewer.data.ComicSort
 import com.zabackaryc.xkcdviewer.data.ListedComic
 
+data class ActiveSearch(
+    val filter: String,
+    val onlyFavorites: Boolean,
+    val comicSort: ComicSort,
+    val results: List<ListedComic>?,
+    val resultsNextOffset: Int?, // null if no more results
+)
+
 data class SearchUiState(
-    val term: String = "",
-    val list: List<ListedComic> = listOf(),
-    val filteredList: List<ListedComic> = listOf(),
     val offline: Boolean = false,
-    val sortOrder: SortOrder = SortOrder.NewestToOldest,
-    val filteringFavorites: Boolean = false,
-    val favoriteComics: List<ListedComic> = listOf()
+    val activeSearch: ActiveSearch? = null,
+
+    val historySample: List<ComicDao.HistoryEntryWithListedComic>? = null,
+    val latestComicsSample: List<ListedComic>? = null,
+    val favoriteComicsSample: List<ListedComic>? = null,
 )
 

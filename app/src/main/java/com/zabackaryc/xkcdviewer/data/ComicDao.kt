@@ -1,13 +1,22 @@
 package com.zabackaryc.xkcdviewer.data
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+
+enum class ComicSort {
+    Default,
+    DateNewest,
+    DateOldest,
+    TitleAZ,
+    TitleZA
+}
 
 @Dao
 interface ComicDao {
-    @Query("SELECT * FROM ListedComic")
-    fun getComics(): Flow<List<ListedComic>>
-
     @Query(
         "SELECT * FROM CachedComic WHERE id = :id"
     )
@@ -18,28 +27,67 @@ interface ComicDao {
     )
     fun getListedComic(id: Int): Flow<ListedComic?>
 
-    @Query("SELECT * FROM ListedComic WHERE title LIKE :title")
-    fun getAllMatchingComics(title: String): Flow<List<ListedComic>?>
-
-    @Query("SELECT * FROM ListedComic WHERE favorite = :favorited")
-    fun getFavoriteComics(
-        favorited: Boolean
+    @Query(
+        "SELECT * " +
+                "FROM ListedComic " +
+                "WHERE (:favorited IS NULL OR favorite = :favorited) AND (:filter IS NULL OR (title LIKE '%' || :filter || '%') OR (note LIKE '%' || :filter || '%')) " +
+                "ORDER BY " +
+                "CASE WHEN :sort = 0 THEN date END DESC," + // default sort order
+                "CASE WHEN :sort = 1 THEN date END DESC," +
+                "CASE WHEN :sort = 2 THEN date END ASC, " +
+                "CASE WHEN :sort = 3 THEN title END ASC," +
+                "CASE WHEN :sort = 4 THEN title END DESC " +
+                "LIMIT :limit OFFSET :offset "
+    )
+    fun getComics(
+        favorited: Boolean? = null,
+        filter: String? = null,
+        limit: Int,
+        offset: Int = 0,
+        sort: ComicSort
     ): Flow<List<ListedComic>>
 
-    @Query("SELECT * FROM ListedComic WHERE title LIKE :title AND favorite = :favorited")
-    fun getFavoritedMatchingComics(
-        favorited: Boolean,
-        title: String
-    ): Flow<List<ListedComic>>
+    @Query(
+        "SELECT COUNT(*) " +
+                "FROM ListedComic " +
+                "WHERE (:favorited IS NULL OR favorite = :favorited) AND (:filter IS NULL OR (title LIKE '%' || :filter || '%') OR (note LIKE '%' || :filter || '%'))"
+    )
+    fun countComics(
+        favorited: Boolean = false,
+        filter: String = ""
+    ): Flow<Int>
 
-    @Query("SELECT * FROM HistoryEntry JOIN ListedComic ON HistoryEntry.comic_id = ListedComic.id")
-    fun getHistory(): Flow<Map<HistoryEntry, ListedComic>>
 
-    @Query("SELECT * FROM ListedComic JOIN HistoryEntry ON ListedComic.id = HistoryEntry.comic_id WHERE ListedComic.id = :listedComicId")
-    suspend fun getComicHistory(listedComicId: Int): Map<ListedComic, List<HistoryEntry>>
+    data class HistoryEntryWithListedComic(
+        @ColumnInfo(name = "history_id")
+        val historyId: Int,
+        @ColumnInfo(name = "comic_id")
+        val comicId: Int,
+        val title: String,
+        val date: String,
+        @ColumnInfo(name = "date_time")
+        val dateTime: Long,
+        val favorite: Boolean,
+        val note: String
+    )
+
+    @Query(
+        "SELECT HistoryEntry.id as history_id, comic_id, date_time, title, date, favorite, note " +
+                "FROM HistoryEntry " +
+                "JOIN ListedComic ON HistoryEntry.comic_id = ListedComic.id " +
+                "ORDER BY HistoryEntry.date_time DESC " +
+                "LIMIT :limit OFFSET :offset"
+    )
+    fun getHistoryEntriesWithListedComic(
+        limit: Int,
+        offset: Int = 0
+    ): Flow<List<HistoryEntryWithListedComic>>
+
+    @Query("SELECT * FROM HistoryEntry WHERE comic_id = :id")
+    fun getComicHistoryEntries(id: Int): Flow<List<HistoryEntry>>
 
     @Query("DELETE FROM HistoryEntry")
-    suspend fun deleteComicHistory()
+    suspend fun deleteAllHistoryEntries()
 
     @Insert
     suspend fun insertHistoryEntry(entry: HistoryEntry)
@@ -47,9 +95,9 @@ interface ComicDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertListedComics(comics: List<ListedComic>)
 
-    @Update
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun updateListedComic(comic: ListedComic)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCachedComic(comic: CachedComic)
+    suspend fun upsertCachedComics(comics: List<CachedComic>)
 }

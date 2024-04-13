@@ -9,6 +9,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
@@ -46,7 +47,14 @@ object NetworkModule {
         }
         if (BuildConfig.DEBUG) {
             val loggingInterceptor = HttpLoggingInterceptor()
-            loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
+            val logConfigInterceptor = Interceptor { chain ->
+                val request = chain.request()
+                // Create condition to exclude resource(s) from logs
+                val logBody: Boolean = request.url.encodedPath != "/archive/"
+                loggingInterceptor.setLevel(if (logBody) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE)
+                chain.proceed(request)
+            }
+            client.addInterceptor(logConfigInterceptor)
             client.addInterceptor(loggingInterceptor)
         }
         return client.build()

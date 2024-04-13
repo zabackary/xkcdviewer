@@ -1,115 +1,134 @@
 package com.zabackaryc.xkcdviewer.ui.search
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Sort
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import com.zabackaryc.xkcdviewer.data.ComicSort
 
 @Composable
 fun SearchOptions(
-    searchTerm: String,
-    onSearchTermChange: (String) -> Unit,
-    filteringFavorites: Boolean,
-    onFilteringFavoritesChange: (Boolean) -> Unit,
-    sortOrder: SortOrder,
-    onSortOrderChange: (SortOrder) -> Unit,
+    onlyFavorites: Boolean,
+    onOnlyFavoritesChange: (Boolean) -> Unit,
+    comicSort: ComicSort,
+    onComicSortChange: (ComicSort) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var sortMenuExpanded by remember { mutableStateOf(false) }
-
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        OutlinedTextField(
-            value = searchTerm,
-            onValueChange = { onSearchTermChange(it) },
-            modifier = Modifier.weight(1f),
-            label = { Text("Search") }
+    val sortTextMap = remember {
+        sortedMapOf(
+            ComicSort.DateNewest to "Newest to oldest",
+            ComicSort.DateOldest to "Oldest to newest",
+            ComicSort.TitleAZ to "Title, A-Z",
+            ComicSort.TitleZA to "Title, Z-A"
         )
-        IconToggleButton(
-            checked = filteringFavorites,
-            onCheckedChange = { onFilteringFavoritesChange(it) }) {
-            if (filteringFavorites) {
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Showing favorites"
-                )
-            } else {
-                Icon(
-                    imageVector = Icons.Default.FavoriteBorder,
-                    contentDescription = "Showing all"
-                )
-            }
+    }
+
+    LazyRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
+    ) {
+        item {
+            FilterChip(
+                leadingIcon = {
+                    Crossfade(onlyFavorites, label = "Favorite selector icon") {
+                        when (it) {
+                            true -> Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null
+                            )
+
+                            false -> Icon(
+                                imageVector = Icons.Default.FavoriteBorder,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
+                    }
+                },
+                selected = onlyFavorites,
+                onClick = {
+                    onOnlyFavoritesChange(!onlyFavorites)
+                },
+                label = {
+                    Text(text = "Only favorites")
+                }
+            )
         }
-        Box {
-            IconButton(
-                onClick = { sortMenuExpanded = true },
-            ) {
-                Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
-            }
-            DropdownMenu(
-                expanded = sortMenuExpanded,
-                onDismissRequest = { sortMenuExpanded = false }) {
-                DropdownMenuItem(
-                    text = { Text("Newest to oldest") },
-                    onClick = {
-                        sortMenuExpanded = false
-                        onSortOrderChange(SortOrder.NewestToOldest)
-                    },
+        item {
+            Box {
+                InputChip(
                     leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
-                            modifier = Modifier.alpha(if (sortOrder == SortOrder.NewestToOldest) 1f else 0f)
-                        )
-                    })
-                DropdownMenuItem(
-                    text = { Text("Oldest to newest") },
-                    onClick = {
-                        sortMenuExpanded = false
-                        onSortOrderChange(SortOrder.OldestToNewest)
+                        Icon(imageVector = Icons.Default.FilterList, contentDescription = null)
                     },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
-                            modifier = Modifier.alpha(if (sortOrder == SortOrder.OldestToNewest) 1f else 0f)
+                    selected = comicSort != ComicSort.Default,
+                    onClick = { sortMenuExpanded = true },
+                    label = {
+                        Text(
+                            text = sortTextMap[comicSort] ?: "Sort"
                         )
-                    })
-                DropdownMenuItem(
-                    text = { Text("Title") },
-                    onClick = {
-                        sortMenuExpanded = false
-                        onSortOrderChange(SortOrder.Title)
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Selected",
-                            modifier = Modifier.alpha(if (sortOrder == SortOrder.Title) 1f else 0f)
-                        )
-                    })
+                    }
+                )
+                DropdownMenu(
+                    expanded = sortMenuExpanded,
+                    onDismissRequest = { sortMenuExpanded = false }
+                ) {
+                    sortTextMap.entries.forEach { sortText ->
+                        if (sortText.key != ComicSort.Default)
+                            DropdownMenuItem(
+                                text = { Text(text = sortText.value) },
+                                onClick = {
+                                    sortMenuExpanded = false
+                                    onComicSortChange(
+                                        if (comicSort == sortText.key) {
+                                            ComicSort.Default
+                                        } else {
+                                            sortText.key
+                                        }
+                                    )
+                                },
+                                leadingIcon = {
+                                    if (comicSort == sortText.key) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = "Selected"
+                                        )
+                                    } else {
+                                        Spacer(modifier = Modifier.width(24.dp))
+                                    }
+                                },
+                                modifier = Modifier.background(
+                                    if (comicSort == sortText.key) MaterialTheme.colorScheme.secondaryContainer
+                                    else Color.Transparent
+                                )
+                            )
+                    }
+                }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun SearchOptionsPreview() {
-    SearchOptions(
-        searchTerm = "",
-        onSearchTermChange = {},
-        filteringFavorites = false,
-        onFilteringFavoritesChange = {},
-        sortOrder = SortOrder.NewestToOldest,
-        onSortOrderChange = {}
-    )
 }

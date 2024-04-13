@@ -23,14 +23,14 @@ import androidx.compose.ui.draw.rotate
 @Composable
 fun TopLevelWrapper(
     searchPlaceholder: String,
-    searchResults: @Composable (term: String) -> Unit,
-    extraSearchItems: @Composable (searchActive: Boolean, animationState: Float) -> Unit,
-    onQueryChange: (term: String) -> Unit = {},
-    fab: (@Composable () -> Unit)? = null,
+    searchQuery: String,
+    onQueryChange: (term: String) -> Unit,
+    searchResults: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    extraSearchItems: @Composable (searchActive: Boolean, animationState: Float) -> Unit = { _, _ -> },
+    onActiveChange: (active: Boolean) -> Unit = {},
     content: @Composable () -> Unit,
 ) {
-    var searchQueryState by remember { mutableStateOf("") }
     var searchActive by remember { mutableStateOf(false) }
     val searchButtonAnimationState by animateFloatAsState(
         targetValue = if (searchActive) 1f else 0f,
@@ -43,14 +43,16 @@ fun TopLevelWrapper(
         SearchBar(
             modifier = Modifier
                 .align(Alignment.TopCenter),
-            query = searchQueryState,
+            query = searchQuery,
             onQueryChange = {
-                searchQueryState = it
                 onQueryChange(it)
             },
             onSearch = { },
             active = searchActive,
-            onActiveChange = { searchActive = it },
+            onActiveChange = {
+                searchActive = it
+                onActiveChange(it)
+            },
             leadingIcon = {
                 Box {
                     if (searchButtonAnimationState != 1f) Icon(
@@ -81,7 +83,7 @@ fun TopLevelWrapper(
                 extraSearchItems(searchActive, searchButtonAnimationState)
             }
         ) {
-            searchResults(searchQueryState)
+            searchResults()
         }
         content()
     }

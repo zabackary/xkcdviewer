@@ -37,9 +37,9 @@ fun defaultImageURL(listedComic: ListedComic) =
     }.png"
 
 @Composable
-fun ComicCard(listedComic: ListedComic, onSelected: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun ComicCard(listedComic: ListedComic, onSelected: () -> Unit, modifier: Modifier = Modifier) {
     Card(
-        onClick = { onSelected(listedComic.id) },
+        onClick = { onSelected() },
         modifier = modifier
             .width(280.dp)
     ) {

@@ -19,7 +19,6 @@ import com.zabackaryc.xkcdviewer.ui.Argument
 import com.zabackaryc.xkcdviewer.utils.await
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -46,34 +45,34 @@ class ComicViewModel @Inject constructor(
             currentComicId = initialComicId ?: 1
         )
         initialComicId?.let { comicId ->
-            viewModelScope.launch {
-                val comics = comicsRepository.comics.first()
-                uiState = uiState.copy(
-                    data = uiState.data + comics.associateBy({ it.id }, { it to null }),
-                    totalComics = comics.size + 1
-                )
+            viewModelScope.launch(Dispatchers.IO) {
                 launch {
-                    comicsRepository.historyEntries.collect {
-                        uiState = uiState.copy(
-                            historyEntries = it
-                        )
+                    // comicsRepository.refreshComics()
+                    comicsRepository.countComics().collect {
+                        withContext(Dispatchers.Main) {
+                            uiState = uiState.copy(
+                                totalComics = it
+                            )
+                        }
                     }
                 }
-                loadComic(comicId)
+                launch {
+                    loadComic(comicId)
+                }
             }
         }
     }
 
     suspend fun loadComic(comicId: Int) {
         withContext(Dispatchers.IO) {
-            comicsRepository.getComicFromId(comicId).collect { comics ->
+            comicsRepository.getComicById(comicId).collect { comicPair ->
                 withContext(Dispatchers.Main) {
-                    uiState = if (comics == null) {
+                    uiState = if (comicPair == null) {
                         uiState.copy(offline = true)
                     } else {
                         uiState.copy(
                             offline = false,
-                            data = uiState.data + (comics.second.id to (comics.second to comics.first))
+                            data = uiState.data + (comicPair.second.id to (comicPair.second to comicPair.first))
                         )
                     }
                 }
@@ -92,12 +91,6 @@ class ComicViewModel @Inject constructor(
     fun setFavoriteComic(comicId: Int, favorite: Boolean) {
         viewModelScope.launch {
             comicsRepository.setFavoriteComic(comicId, favorite)
-        }
-    }
-
-    fun deleteHistory() {
-        viewModelScope.launch {
-            comicsRepository.deleteHistory()
         }
     }
 
