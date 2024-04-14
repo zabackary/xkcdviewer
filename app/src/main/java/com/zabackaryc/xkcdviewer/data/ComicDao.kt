@@ -32,9 +32,9 @@ interface ComicDao {
                 "FROM ListedComic " +
                 "WHERE (:favorited IS NULL OR favorite = :favorited) AND (:filter IS NULL OR (title LIKE '%' || :filter || '%') OR (note LIKE '%' || :filter || '%')) " +
                 "ORDER BY " +
-                "CASE WHEN :sort = 0 THEN date END DESC," + // default sort order
-                "CASE WHEN :sort = 1 THEN date END DESC," +
-                "CASE WHEN :sort = 2 THEN date END ASC, " +
+                "CASE WHEN :sort = 0 THEN id END DESC," + // default sort order
+                "CASE WHEN :sort = 1 THEN id END DESC," +
+                "CASE WHEN :sort = 2 THEN id END ASC, " +
                 "CASE WHEN :sort = 3 THEN title END ASC," +
                 "CASE WHEN :sort = 4 THEN title END DESC " +
                 "LIMIT :limit OFFSET :offset "
