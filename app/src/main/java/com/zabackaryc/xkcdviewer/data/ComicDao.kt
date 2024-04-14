@@ -83,6 +83,11 @@ interface ComicDao {
         offset: Int = 0
     ): Flow<List<HistoryEntryWithListedComic>>
 
+    @Query(
+        "SELECT Count(*) FROM HistoryEntry"
+    )
+    fun countHistoryEntries(): Flow<Int>
+
     @Query("SELECT * FROM HistoryEntry WHERE comic_id = :id")
     fun getComicHistoryEntries(id: Int): Flow<List<HistoryEntry>>
 

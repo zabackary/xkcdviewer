@@ -155,7 +155,8 @@ fun XkcdViewerApp() {
                 SettingsScreen(
                     onAboutScreenNavigation = {
                         navController.navigate(Route.SettingsAbout.route)
-                    }
+                    },
+                    viewModel = hiltViewModel()
                 )
             }
             composable(Route.SettingsAbout.route) { _ ->

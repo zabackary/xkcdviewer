@@ -73,6 +73,10 @@ class ComicRepository @Inject constructor(
         }
     }
 
+    fun countHistoryEntries(): Flow<Int> {
+        return comicDao.countHistoryEntries()
+    }
+
     suspend fun deleteHistory() {
         comicDao.deleteAllHistoryEntries()
     }
