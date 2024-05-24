@@ -9,9 +9,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,24 +36,56 @@ import java.time.format.FormatStyle
 fun ComicListItem(
     listedComic: ListedComic,
     onFavoriteChange: (Boolean) -> Unit,
-    onSelected: () -> Unit
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     AbstractComicListItem(
         title = listedComic.title,
         description = null,
-        date = listedComic.date,
+        overline = listedComic.date,
         id = listedComic.id,
         favorite = listedComic.favorite,
         onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
+        modifier = modifier
     )
+}
+
+@Composable
+fun HighlightedComicListItem(
+    listedComic: ListedComic,
+    onFavoriteChange: (Boolean) -> Unit,
+    onSelected: () -> Unit,
+    highlightedReason: String,
+    modifier: Modifier = Modifier
+) {
+    ElevatedCard(
+        modifier = modifier
+    ) {
+        AbstractComicListItem(
+            title = listedComic.title,
+            description = "Posted on ${listedComic.date}",
+            overline = highlightedReason,
+            id = listedComic.id,
+            favorite = listedComic.favorite,
+            onFavoriteChange = onFavoriteChange,
+            onSelected = onSelected,
+            colors = ListItemDefaults.colors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                headlineColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                supportingColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                overlineColor = MaterialTheme.colorScheme.onSurface
+            )
+        )
+    }
 }
 
 @Composable
 fun HistoryEntryListItem(
     historyEntryWithListedComic: ComicDao.HistoryEntryWithListedComic,
     onFavoriteChange: (Boolean) -> Unit,
-    onSelected: () -> Unit
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val formattedDateTime = remember {
@@ -62,26 +97,29 @@ fun HistoryEntryListItem(
     AbstractComicListItem(
         title = historyEntryWithListedComic.title,
         description = "Viewed at $formattedDateTime",
-        date = historyEntryWithListedComic.date,
+        overline = historyEntryWithListedComic.date,
         id = historyEntryWithListedComic.comicId,
         favorite = historyEntryWithListedComic.favorite,
         onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
+        modifier = modifier
     )
 }
 
 @Composable
 fun AbstractComicListItem(
     title: String,
-    date: String,
+    overline: String,
     description: String?,
     id: Int,
     favorite: Boolean,
     onFavoriteChange: (Boolean) -> Unit,
-    onSelected: () -> Unit
+    onSelected: () -> Unit,
+    modifier: Modifier = Modifier,
+    colors: ListItemColors = ListItemDefaults.colors(),
 ) {
     ListItem(
-        overlineContent = { Text(date) },
+        overlineContent = { Text(overline) },
         headlineContent = { Text(title) },
         supportingContent = description?.let {
             {
@@ -123,9 +161,10 @@ fun AbstractComicListItem(
                 }
             }
         },
-        modifier = Modifier
+        modifier = modifier
             .clickable {
                 onSelected()
-            }
+            },
+        colors = colors
     )
 }

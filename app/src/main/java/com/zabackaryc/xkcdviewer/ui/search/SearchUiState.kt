@@ -10,6 +10,8 @@ data class ActiveSearch(
     val comicSort: ComicSort,
     val results: List<ListedComic>?,
     val resultsNextOffset: Int?, // null if no more results
+
+    val highlightedResult: ListedComic? // e.g. a search by comic ID, etc.
 )
 
 data class SearchUiState(

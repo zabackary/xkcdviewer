@@ -73,9 +73,9 @@ class SearchViewModel @Inject constructor(
         pageSize: Int = 20
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val newActiveSearch = uiState.activeSearch?.let { activeSearch ->
+            val newResultsPair = uiState.activeSearch?.let { activeSearch ->
                 if (activeSearch.resultsNextOffset == null) {
-                    activeSearch
+                    null
                 } else {
                     val newResults = comicsRepository.searchComics(
                         favorited = activeSearch.onlyFavorites,
@@ -84,18 +84,36 @@ class SearchViewModel @Inject constructor(
                         limit = pageSize,
                         offset = activeSearch.resultsNextOffset
                     ).first()
-                    activeSearch.copy(
-                        results = (if (activeSearch.resultsNextOffset == 0) listOf() else activeSearch.results
-                            ?: listOf()) + newResults,
-                        resultsNextOffset = if (newResults.size < pageSize) null
-                        else activeSearch.resultsNextOffset + newResults.size
-                    )
+                    ((if (activeSearch.resultsNextOffset == 0) listOf() else activeSearch.results
+                        ?: listOf()) + newResults to
+                            (if (newResults.size < pageSize) null
+                            else activeSearch.resultsNextOffset + newResults.size
+                                    ))
                 }
             }
             withContext(Dispatchers.Main) {
-                uiState = uiState.copy(
-                    activeSearch = newActiveSearch
-                )
+                newResultsPair?.let { (results, resultsNextOffset) ->
+                    uiState = uiState.copy(
+                        activeSearch = uiState.activeSearch?.copy(
+                            results = results,
+                            resultsNextOffset = resultsNextOffset
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun tryLoadIdSearchResult(id: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            comicsRepository.getListedComicById(id).first()?.let {
+                withContext(Dispatchers.Main) {
+                    uiState = uiState.copy(
+                        activeSearch = uiState.activeSearch?.copy(
+                            highlightedResult = it
+                        )
+                    )
+                }
             }
         }
     }
@@ -115,9 +133,14 @@ class SearchViewModel @Inject constructor(
                 onlyFavorites = onlyFavorites ?: activeSearch.onlyFavorites,
                 comicSort = comicSort ?: activeSearch.comicSort,
 
-                resultsNextOffset = 0
+                highlightedResult = null,
+
+                resultsNextOffset = 0,
             )
         )
+        filter?.trim()?.toIntOrNull()?.let {
+            tryLoadIdSearchResult(it)
+        }
         loadNextSearchPage()
     }
 
@@ -128,7 +151,8 @@ class SearchViewModel @Inject constructor(
                 onlyFavorites = false,
                 comicSort = ComicSort.Default,
                 results = null,
-                resultsNextOffset = null
+                resultsNextOffset = null,
+                highlightedResult = null
             )
         )
     }

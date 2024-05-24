@@ -97,6 +97,10 @@ class ComicRepository @Inject constructor(
         }
     }
 
+    fun getListedComicById(id: Int): Flow<ListedComic?> {
+        return comicDao.getListedComic(id)
+    }
+
     fun getComicById(id: Int) = channelFlow<Pair<CachedComic, ListedComic>?> {
         var listedComic: ListedComic? = null
         var cachedComic: CachedComic? = null

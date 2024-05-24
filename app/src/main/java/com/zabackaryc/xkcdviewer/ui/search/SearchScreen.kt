@@ -57,6 +57,21 @@ fun SearchScreen(
             )
             viewModel.uiState.activeSearch.let { activeSearch ->
                 LazyColumn {
+                    activeSearch?.highlightedResult?.let { item ->
+                        item {
+                            HighlightedComicListItem(
+                                listedComic = item,
+                                onFavoriteChange = {
+                                    viewModel.setFavoriteComic(item.id, it)
+                                },
+                                onSelected = {
+                                    onComicSelected(item.id)
+                                },
+                                highlightedReason = "Because the comic ID matches",
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
                     if (activeSearch?.results == null) {
                         item {
                             Text(
