@@ -22,6 +22,10 @@ class ComicRepository @Inject constructor(
     private val comicDao: ComicDao,
     private val explainApi: ExplainApi
 ) {
+    fun getLatestComicId(): Flow<Int> {
+        return comicDao.getLatestComicId()
+    }
+
     fun searchComics(
         favorited: Boolean? = null,
         filter: String = "",

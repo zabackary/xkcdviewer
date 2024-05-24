@@ -48,7 +48,7 @@ class ComicViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.IO) {
                 launch {
                     // comicsRepository.refreshComics()
-                    comicsRepository.countComics().collect {
+                    comicsRepository.getLatestComicId().collect {
                         withContext(Dispatchers.Main) {
                             uiState = uiState.copy(
                                 totalComics = it

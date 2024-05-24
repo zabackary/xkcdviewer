@@ -18,6 +18,11 @@ enum class ComicSort {
 @Dao
 interface ComicDao {
     @Query(
+        "SELECT id FROM ListedComic ORDER BY id DESC LIMIT 1"
+    )
+    fun getLatestComicId(): Flow<Int>
+
+    @Query(
         "SELECT * FROM CachedComic WHERE id = :id"
     )
     fun getCachedComic(id: Int): Flow<CachedComic?>
