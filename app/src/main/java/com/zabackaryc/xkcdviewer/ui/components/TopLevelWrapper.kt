@@ -64,7 +64,10 @@ fun TopLevelWrapper(
                             .align(Alignment.Center)
                     )
                     if (searchButtonAnimationState != 0f) IconButton(
-                        onClick = { searchActive = false },
+                        onClick = {
+                            searchActive = false
+                            onActiveChange(false)
+                        },
                         modifier = Modifier
                             .alpha(searchButtonAnimationState)
                             .rotate((searchButtonAnimationState - 1f) * 180f)
