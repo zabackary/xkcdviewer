@@ -51,11 +51,13 @@ class ComicRepository @Inject constructor(
     }
 
     suspend fun addHistoryEntry(comicId: Int) {
-        comicDao.insertHistoryEntry(
-            HistoryEntry(
-                comicId = comicId, dateTime = Instant.now().toEpochMilli()
+        if (comicDao.getListedComic(comicId).first() != null) {
+            comicDao.insertHistoryEntry(
+                HistoryEntry(
+                    comicId = comicId, dateTime = Instant.now().toEpochMilli()
+                )
             )
-        )
+        }
     }
 
     suspend fun setFavoriteComic(comicId: Int, favorite: Boolean) {

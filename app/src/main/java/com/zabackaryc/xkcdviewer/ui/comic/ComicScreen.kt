@@ -74,7 +74,6 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
     var comicTranscript by remember { mutableStateOf<String?>(null) }
 
     val pagerState = rememberPagerState(initialPage = viewModel.uiState.currentComicId - 1)
-    var scrollEnabled by remember { mutableStateOf(true) }
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             viewModel.setCurrentComicId(page + 1)
@@ -142,20 +141,28 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                 },
                 actions = {
                     PlainTooltipBox(tooltip = {
-                        Text(if (listedComic?.favorite == true) "Remove favorite" else "Favorite comic")
+                        Text(if (listedComic?.favorite == true) "Remove favorite" else "Add favorite")
                     }) {
                         IconToggleButton(
                             checked = listedComic?.favorite ?: false,
                             onCheckedChange = {
-                                viewModel.setFavoriteComic(
-                                    pagerState.currentPage + 1, it
-                                )
-                                coroutineScope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
-                                        else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
-                                        else ""
+                                if (cachedComic != null) {
+                                    viewModel.setFavoriteComic(
+                                        pagerState.currentPage + 1, it
                                     )
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
+                                            else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
+                                            else ""
+                                        )
+                                    }
+                                } else {
+                                    coroutineScope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            "There doesn't seem to be a comic to favorite."
+                                        )
+                                    }
                                 }
                             },
                             modifier = Modifier.tooltipAnchor()
@@ -256,14 +263,14 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                     count = totalComics,
                     modifier = Modifier.padding(paddingValues),
                     state = pagerState,
-                    userScrollEnabled = scrollEnabled,
                 ) { page ->
+                    val comicId = page + 1
                     LaunchedEffect(Unit) {
-                        viewModel.loadComic(page + 1)
+                        viewModel.loadComic(comicId)
                     }
                     ComicItem(
-                        cachedComic = viewModel.uiState.data[page + 1]?.second,
-                        setScrollEnabled = { scrollEnabled = it },
+                        id = comicId,
+                        cachedComic = viewModel.uiState.data[comicId]?.second,
                         showComicDetails = {
                             comicDetailsOpen = true
                             comicDetailsCurrentComicId = page + 1
