@@ -279,7 +279,6 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                 }
             } else {
                 HorizontalPager(
-                    beyondBoundsPageCount = 1,
                     modifier = Modifier.padding(paddingValues),
                     pageSpacing = 8.dp,
                     state = pagerState,
