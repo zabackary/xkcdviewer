@@ -29,9 +29,12 @@ import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -183,12 +186,15 @@ fun ComicActions(
                     ) {
                         content(false)
                     }
-                    PlainTooltipBox(tooltip = { Text("Expand actions") }) {
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        tooltip = { PlainTooltip { Text("Expand actions") } },
+                        state = rememberTooltipState()
+                    ) {
                         FilledIconButton(
                             onClick = {
                                 onExpandChange(true)
-                            },
-                            modifier = Modifier.tooltipAnchor()
+                            }
                         ) {
                             Icon(
                                 imageVector = Icons.Default.ExpandMore,
@@ -250,13 +256,17 @@ fun ComicAction(
             }
         )
     } else {
-        PlainTooltipBox(tooltip = { Text(shortName) }, modifier = modifier) {
+        TooltipBox(
+            tooltip = { PlainTooltip { Text(shortName) } },
+            modifier = modifier,
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+            state = rememberTooltipState()
+        ) {
             val iconButton = @Composable {
                 FilledTonalIconButton(
                     onClick = {
                         onClick()
-                    },
-                    modifier = Modifier.tooltipAnchor()
+                    }
                 ) {
                     icon(actionableName)
                 }

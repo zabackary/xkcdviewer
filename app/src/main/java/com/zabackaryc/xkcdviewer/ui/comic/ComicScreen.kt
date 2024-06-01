@@ -1,15 +1,18 @@
 package com.zabackaryc.xkcdviewer.ui.comic
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -24,15 +27,18 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.PlainTooltipBox
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
@@ -51,13 +57,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
 import com.zabackaryc.xkcdviewer.utils.getActivity
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -73,7 +77,10 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
 
     var comicTranscript by remember { mutableStateOf<String?>(null) }
 
-    val pagerState = rememberPagerState(initialPage = viewModel.uiState.currentComicId - 1)
+    val pagerState =
+        rememberPagerState(initialPage = viewModel.uiState.currentComicId - 1, pageCount = {
+            viewModel.uiState.totalComics ?: Int.MAX_VALUE
+        })
     LaunchedEffect(pagerState) {
         snapshotFlow { pagerState.currentPage }.collect { page ->
             viewModel.setCurrentComicId(page + 1)
@@ -126,23 +133,30 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                     }
                 },
                 navigationIcon = {
-                    PlainTooltipBox(
+                    TooltipBox(
                         tooltip = {
-                            Text("Back")
-                        }
+                            PlainTooltip { Text("Back") }
+                        },
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        state = rememberTooltipState()
                     ) {
                         IconButton(
-                            onClick = onNavigationUp,
-                            modifier = Modifier.tooltipAnchor()
+                            onClick = onNavigationUp
                         ) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                         }
                     }
                 },
                 actions = {
-                    PlainTooltipBox(tooltip = {
-                        Text(if (listedComic?.favorite == true) "Remove favorite" else "Add favorite")
-                    }) {
+                    TooltipBox(
+                        tooltip = {
+                            PlainTooltip {
+                                Text(if (listedComic?.favorite == true) "Remove favorite" else "Add favorite")
+                            }
+                        },
+                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                        state = rememberTooltipState()
+                    ) {
                         IconToggleButton(
                             checked = listedComic?.favorite ?: false,
                             onCheckedChange = {
@@ -164,8 +178,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                         )
                                     }
                                 }
-                            },
-                            modifier = Modifier.tooltipAnchor()
+                            }
                         ) {
                             if (listedComic?.favorite == true) {
                                 Icon(
@@ -181,10 +194,14 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                         }
                     }
                     if (hasMetadata) {
-                        PlainTooltipBox(
+                        TooltipBox(
                             tooltip = {
-                                Text("More options. This comic has extra metadata")
-                            }
+                                PlainTooltip {
+                                    Text("More options. This comic has extra metadata")
+                                }
+                            },
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            state = rememberTooltipState()
                         ) {
                             BadgedBox(badge = {
                                 Badge(
@@ -195,8 +212,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                                     onClick = {
                                         comicDetailsOpen = true
                                         comicDetailsCurrentComicId = listedComic?.id
-                                    },
-                                    modifier = Modifier.tooltipAnchor()
+                                    }
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.MoreVert,
@@ -207,17 +223,20 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             }
                         }
                     } else {
-                        PlainTooltipBox(
+                        TooltipBox(
                             tooltip = {
-                                Text("More options")
-                            }
+                                PlainTooltip {
+                                    Text("More options")
+                                }
+                            },
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            state = rememberTooltipState()
                         ) {
                             IconButton(
                                 onClick = {
                                     comicDetailsOpen = true
                                     comicDetailsCurrentComicId = listedComic?.id
-                                },
-                                modifier = Modifier.tooltipAnchor()
+                                }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
@@ -260,8 +279,9 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                 }
             } else {
                 HorizontalPager(
-                    count = totalComics,
+                    beyondBoundsPageCount = 1,
                     modifier = Modifier.padding(paddingValues),
+                    pageSpacing = 8.dp,
                     state = pagerState,
                 ) { page ->
                     val comicId = page + 1
