@@ -36,7 +36,7 @@ fun SearchScreen(
         onQueryChange = {
             viewModel.updateActiveSearch(filter = it)
         },
-        onActiveChange = { active ->
+        onExpandedChange = { active ->
             if (active) {
                 viewModel.beginSearch()
             } else {
