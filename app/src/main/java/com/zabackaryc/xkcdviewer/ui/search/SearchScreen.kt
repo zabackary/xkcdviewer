@@ -10,14 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,8 +50,7 @@ fun SearchScreen(
                 comicSort = viewModel.uiState.activeSearch?.comicSort ?: ComicSort.Default,
                 onComicSortChange = { viewModel.updateActiveSearch(comicSort = it) }
             )
-            Divider(
-            )
+            HorizontalDivider()
             viewModel.uiState.activeSearch.let { activeSearch ->
                 LazyColumn {
                     activeSearch?.highlightedResult?.let { item ->
@@ -139,31 +135,12 @@ fun SearchScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(16.dp)
                     )
-                    LazyRow {
-                        viewModel.uiState.latestComicsSample.let { latestComicsSample ->
-                            if (latestComicsSample == null) {
-                                items(count = 4) {
-                                    Card(
-                                        modifier = Modifier
-                                            .width(280.dp)
-                                            .height(180.dp)
-                                            .padding(8.dp)
-                                    ) {}
-                                }
-                            } else {
-                                items(latestComicsSample, key = { it.id }) { item ->
-                                    ComicCard(
-                                        listedComic = item,
-                                        onSelected = {
-                                            onComicSelected(item.id)
-                                        },
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    ComicCarousel(
+                        comics = { viewModel.uiState.latestComicsSample },
+                        onComicSelected = onComicSelected,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        onBrowseMoreClicked = { /* TODO */ }
+                    )
                 }
                 item {
                     Text(
@@ -171,31 +148,12 @@ fun SearchScreen(
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(16.dp)
                     )
-                    LazyRow {
-                        viewModel.uiState.favoriteComicsSample.let { favoriteComicsSample ->
-                            if (favoriteComicsSample == null) {
-                                items(count = 4) {
-                                    Card(
-                                        modifier = Modifier
-                                            .width(280.dp)
-                                            .height(180.dp)
-                                            .padding(8.dp)
-                                    ) {}
-                                }
-                            } else {
-                                items(favoriteComicsSample, key = { it.id }) { item ->
-                                    ComicCard(
-                                        listedComic = item,
-                                        onSelected = {
-                                            onComicSelected(item.id)
-                                        },
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    ComicCarousel(
+                        comics = { viewModel.uiState.favoriteComicsSample },
+                        onComicSelected = onComicSelected,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        onBrowseMoreClicked = { /* TODO */ }
+                    )
                 }
                 item {
                     Spacer(
