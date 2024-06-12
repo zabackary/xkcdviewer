@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,10 +56,10 @@ fun LicenseScreen(
     val libraryInfo = remember(context) {
         LibraryList.getLibraryList(context)
     }
-    var activeLicenseDialog by remember {
+    var activeLicenseDialog by rememberSaveable {
         mutableStateOf<License?>(null)
     }
-    var activeLibraryDialog by remember {
+    var activeLibraryDialog by rememberSaveable {
         mutableStateOf<Library?>(null)
     }
     val launchURL = { url: String ->
