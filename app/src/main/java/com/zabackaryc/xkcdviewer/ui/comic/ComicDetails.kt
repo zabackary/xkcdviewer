@@ -87,7 +87,7 @@ fun ComicDetails(
                 text = cachedComic.mouseover, modifier = Modifier.padding(12.dp)
             )
             if (cachedComic.newsContent != null) {
-                NewsBubble(cachedComic.newsContent)
+                NewsBubble("Header text news", cachedComic.newsContent)
             }
             ComicActions(
                 listedComic = listedComic,
@@ -287,7 +287,7 @@ fun ComicAction(
 }
 
 @Composable
-fun NewsBubble(content: String, modifier: Modifier = Modifier) {
+fun NewsBubble(title: String, content: String, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .padding(8.dp)
@@ -307,7 +307,7 @@ fun NewsBubble(content: String, modifier: Modifier = Modifier) {
         ) {
             ProvideTextStyle(value = TextStyle(color = MaterialTheme.colorScheme.onPrimaryContainer)) {
                 Text(
-                    text = "Header text news",
+                    text = title,
                     style = MaterialTheme.typography.labelSmall
                 )
                 val context = LocalContext.current
@@ -332,7 +332,7 @@ fun NewsBubble(content: String, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun NewsBubblePreview() {
-    NewsBubble(content = "This is fake news!! It's not real!")
+    NewsBubble(title = "Fake news!", content = "This is fake news!! It's not real!")
 }
 
 @Preview

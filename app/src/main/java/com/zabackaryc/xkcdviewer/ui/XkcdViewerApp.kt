@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavOptions
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -130,12 +129,6 @@ fun XkcdViewerApp() {
                 SearchScreen(
                     onComicSelected = { comicId ->
                         navController.navigate("${Route.Comic.route}/$comicId")
-                    },
-                    onTopLevelDestinationSelected = { route ->
-                        navController.navigate(
-                            route,
-                            navOptions = NavOptions.Builder().setLaunchSingleTop(true).build()
-                        )
                     },
                     viewModel = hiltViewModel()
                 )

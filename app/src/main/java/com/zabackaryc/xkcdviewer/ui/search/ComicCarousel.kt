@@ -5,26 +5,30 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BrokenImage
 import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.CarouselItemInfo
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -35,6 +39,7 @@ import coil.compose.AsyncImagePainter
 import coil.compose.SubcomposeAsyncImage
 import coil.compose.SubcomposeAsyncImageContent
 import com.zabackaryc.xkcdviewer.data.ListedComic
+import kotlin.math.min
 
 fun defaultImageURL(listedComic: ListedComic) =
     "https://imgs.xkcd.com/comics/${
@@ -71,14 +76,17 @@ fun ComicCarouselItem(
                     ) { CircularProgressIndicator() }
 
                     is AsyncImagePainter.State.Error -> Column(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.White),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Image,
+                            imageVector = Icons.Default.BrokenImage,
                             contentDescription = "Failed to load preview",
-                            modifier = Modifier.size(96.dp)
+                            modifier = Modifier.size(96.dp),
+                            tint = Color.Black
                         )
                     }
 
@@ -93,7 +101,7 @@ fun ComicCarouselItem(
                             0.0F to Color.Transparent,
                             0.6F to Color.Transparent,
                             1.0F to Color(
-                                if (listedComic.favorite) 0.3F else 0.0F, // show a little red for favorite comics
+                                0.0F,
                                 0.0F,
                                 0.0F,
                                 0.7F
@@ -116,6 +124,20 @@ fun ComicCarouselItem(
                     overflow = TextOverflow.Ellipsis
                 )
             }
+            if (listedComic.favorite) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "This comic is favorited",
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .graphicsLayer {
+                            translationX = itemInfo.maskRect.left
+                            alpha = itemInfo.size / itemInfo.maxSize
+                        }
+                        .padding(16.dp),
+                    tint = Color(0xffff6b6b)
+                )
+            }
         } else {
             Box(
                 modifier = Modifier
@@ -127,7 +149,11 @@ fun ComicCarouselItem(
 }
 
 @Composable
-fun CarouselBrowseMoreItem(onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun CarouselBrowseMoreItem(
+    onClick: () -> Unit,
+    itemInfo: CarouselItemInfo,
+    modifier: Modifier = Modifier
+) {
     Card(
         onClick = onClick,
         modifier = modifier
@@ -135,7 +161,9 @@ fun CarouselBrowseMoreItem(onClick: () -> Unit, modifier: Modifier = Modifier) {
             .height(240.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(itemInfo.size / min(260F, itemInfo.maxSize)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -177,6 +205,7 @@ fun ComicCarousel(
                 }) {
                 CarouselBrowseMoreItem(
                     onClick = { onBrowseMoreClicked?.invoke() },
+                    itemInfo = carouselItemInfo,
                     modifier = Modifier.maskClip(shape = MaterialTheme.shapes.extraLarge)
                 )
             } else {
@@ -192,6 +221,29 @@ fun ComicCarousel(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ComicCarouselHeader(
+    headerText: String,
+    onBrowseMoreClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = headerText,
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier
+                .weight(1f)
+        )
+        TextButton(onClick = { onBrowseMoreClicked() }) {
+            Text(text = "Show all")
         }
     }
 }

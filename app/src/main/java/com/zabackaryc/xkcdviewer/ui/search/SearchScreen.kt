@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsTopHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -27,7 +28,6 @@ import com.zabackaryc.xkcdviewer.ui.components.TopLevelWrapper
 @Composable
 fun SearchScreen(
     onComicSelected: (comicId: Int) -> Unit,
-    onTopLevelDestinationSelected: (route: String) -> Unit,
     viewModel: SearchViewModel
 ) {
     TopLevelWrapper(
@@ -121,20 +121,16 @@ fun SearchScreen(
         }
     ) {
         if (!viewModel.uiState.offline) {
-            LazyColumn(contentPadding = PaddingValues(top = 86.dp, bottom = 16.dp)) {
+            LazyColumn(contentPadding = PaddingValues(top = (56 + 8).dp, bottom = 16.dp)) {
                 item {
                     Spacer(
-                        Modifier.windowInsetsBottomHeight(
+                        Modifier.windowInsetsTopHeight(
                             WindowInsets.systemBars
                         )
                     )
                 }
                 item {
-                    Text(
-                        text = "Latest comics",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    ComicCarouselHeader("Latest comics", onBrowseMoreClicked = { /* TODO */ })
                     ComicCarousel(
                         comics = { viewModel.uiState.latestComicsSample },
                         onComicSelected = onComicSelected,
@@ -143,11 +139,7 @@ fun SearchScreen(
                     )
                 }
                 item {
-                    Text(
-                        text = "Favorites",
-                        style = MaterialTheme.typography.headlineMedium,
-                        modifier = Modifier.padding(16.dp)
-                    )
+                    ComicCarouselHeader("Favorites", onBrowseMoreClicked = { /* TODO */ })
                     ComicCarousel(
                         comics = { viewModel.uiState.favoriteComicsSample },
                         onComicSelected = onComicSelected,
