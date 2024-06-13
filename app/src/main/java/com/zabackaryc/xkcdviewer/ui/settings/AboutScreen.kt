@@ -14,10 +14,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,7 +57,7 @@ fun AboutScreen(
                 navigationIcon = {
                     IconButton(onClick = { onNavigationUp() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -76,9 +76,9 @@ fun AboutScreen(
                 contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .padding(12.dp, 24.dp, 12.dp, 4.dp)
+                    .clip(CircleShape)
                     .size(86.dp)
                     .align(Alignment.CenterHorizontally)
-                    .clip(CircleShape)
                     .background(Color.White)
             )
             Text(
@@ -101,7 +101,7 @@ fun AboutScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Code,
-                        contentDescription = null
+                        contentDescription = "Git commit tag/hash"
                     )
                     Text(
                         text = BuildConfig.GIT_VERSION_LONG,
@@ -115,7 +115,7 @@ fun AboutScreen(
                 supportingContent = { Text("zabackary/xkcdviewer") },
                 trailingContent = {
                     Icon(
-                        imageVector = Icons.Default.OpenInNew,
+                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                         contentDescription = "Click to open in browser"
                     )
                 },
@@ -131,12 +131,8 @@ fun AboutScreen(
                 }
             )
             ListItem(
-                headlineContent = { Text("Made with \ud83d\udc96 by @zabackary in \u65E5\u672c") },
-                supportingContent = { Text("Jesus loves you and cares for you, even in the darkest depths of your life.") }
-            )
-            ListItem(
                 headlineContent = { Text("View open source licenses") },
-                supportingContent = { Text("This application depends on a variety of open source libraries others have put time and effort into.") },
+                supportingContent = { Text("Thank you to all the maintainers and contributors that make xkcd viewer possible! xkcd.com/2347") },
                 trailingContent = {
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
@@ -146,6 +142,11 @@ fun AboutScreen(
                 modifier = Modifier.clickable {
                     onLicenseNavigation()
                 }
+            )
+            ListItem(
+                headlineContent = { Text("Made with \ud83d\udc96 by @zabackary in \u65E5\u672c") },
+                // Romans 5:6-8 (NIV, SKY 2017)
+                supportingContent = { Text("You see, at just the right time, when we were still powerless, Christ died for the ungodly. Very rarely will anyone die for a righteous person, though for a good person someone might possibly dare to die. But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.\n実にキリストは、私たちがまだ弱かったころ、定められた時に、不敬虔な者たちのために死んでくださいました。正しい人のためであっても、死ぬ人はほとんどいません。善良な人のためなら、進んで死ぬ人がいるかもしれません。しかし、私たちがまだ罪人であったとき、キリストが私たちのために死なれたことによって、神は私たちに対するご自分の愛を明らかにしておられます。") }
             )
         }
     }
