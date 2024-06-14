@@ -22,6 +22,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.os.ConfigurationCompat
@@ -47,7 +48,10 @@ fun ComicListItem(
         favorite = listedComic.favorite,
         onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
-        modifier = modifier
+        modifier = modifier,
+        colors = ListItemDefaults.colors(
+            containerColor = Color.Transparent
+        )
     )
 }
 
@@ -102,7 +106,10 @@ fun HistoryEntryListItem(
         favorite = historyEntryWithListedComic.favorite,
         onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
-        modifier = modifier
+        modifier = modifier,
+        colors = ListItemDefaults.colors(
+            containerColor = Color.Transparent
+        )
     )
 }
 
