@@ -4,7 +4,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -14,8 +13,6 @@ import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
-import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,9 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import com.zabackaryc.xkcdviewer.utils.getActivity
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
@@ -107,16 +101,8 @@ fun TopLevelWrapper(
             },
             modifier = Modifier
                 .align(
-                    if ((LocalContext.current
-                            .getActivity()
-                            ?.let { calculateWindowSizeClass(activity = it).widthSizeClass }) == WindowWidthSizeClass.Compact
-                    ) {
-                        Alignment.TopCenter
-                    } else {
-                        Alignment.TopStart
-                    }
-                )
-                .padding(horizontal = 16.dp),
+                    Alignment.TopCenter
+                ),
             shape = SearchBarDefaults.inputFieldShape,
             colors = SearchBarDefaults.colors(),
             tonalElevation = SearchBarDefaults.TonalElevation,
