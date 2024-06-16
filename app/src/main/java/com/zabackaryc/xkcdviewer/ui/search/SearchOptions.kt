@@ -9,15 +9,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -83,7 +84,10 @@ fun SearchOptions(
             Box {
                 InputChip(
                     leadingIcon = {
-                        Icon(imageVector = Icons.Default.FilterList, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Sort,
+                            contentDescription = null
+                        )
                     },
                     selected = comicSort != ComicSort.Default,
                     onClick = { sortMenuExpanded = true },
@@ -121,6 +125,10 @@ fun SearchOptions(
                                         Spacer(modifier = Modifier.width(24.dp))
                                     }
                                 },
+                                colors = if (comicSort == sortText.key) MenuDefaults.itemColors(
+                                    textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    leadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ) else MenuDefaults.itemColors(),
                                 modifier = Modifier.background(
                                     if (comicSort == sortText.key) MaterialTheme.colorScheme.secondaryContainer
                                     else Color.Transparent

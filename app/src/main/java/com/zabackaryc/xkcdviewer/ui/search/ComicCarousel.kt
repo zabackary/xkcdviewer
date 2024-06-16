@@ -80,7 +80,7 @@ fun ComicCarouselItem(
                     is AsyncImagePainter.State.Error -> Column(
                         modifier = Modifier
                             .fillMaxSize()
-                            .background(Color.White),
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -88,7 +88,7 @@ fun ComicCarouselItem(
                             imageVector = Icons.Default.BrokenImage,
                             contentDescription = "Failed to load preview",
                             modifier = Modifier.size(96.dp),
-                            tint = Color.Black
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
 

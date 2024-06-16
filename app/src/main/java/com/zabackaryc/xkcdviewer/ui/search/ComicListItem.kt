@@ -77,8 +77,9 @@ fun HighlightedComicListItem(
             colors = ListItemDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 headlineColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                supportingColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                overlineColor = MaterialTheme.colorScheme.onSurface
+                supportingColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.7f),
+                overlineColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                trailingIconColor = MaterialTheme.colorScheme.onSecondaryContainer
             )
         )
     }
@@ -92,7 +93,7 @@ fun HistoryEntryListItem(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val formattedDateTime = remember {
+    val formattedDateTime = remember(historyEntryWithListedComic.dateTime) {
         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
             .withLocale(ConfigurationCompat.getLocales(context.resources.configuration)[0])
             .withZone(ZoneId.systemDefault())
@@ -143,7 +144,8 @@ fun AbstractComicListItem(
             ) {
                 Text(
                     "$id",
-                    modifier = Modifier.align(Alignment.Center)
+                    modifier = Modifier.align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
         },
