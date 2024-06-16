@@ -11,7 +11,6 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
@@ -36,7 +35,6 @@ import java.time.format.FormatStyle
 @Composable
 fun ComicListItem(
     listedComic: ListedComic,
-    onFavoriteChange: (Boolean) -> Unit,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -46,7 +44,6 @@ fun ComicListItem(
         overline = listedComic.date,
         id = listedComic.id,
         favorite = listedComic.favorite,
-        onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
         modifier = modifier,
         colors = ListItemDefaults.colors(
@@ -58,7 +55,6 @@ fun ComicListItem(
 @Composable
 fun HighlightedComicListItem(
     listedComic: ListedComic,
-    onFavoriteChange: (Boolean) -> Unit,
     onSelected: () -> Unit,
     highlightedReason: String,
     modifier: Modifier = Modifier
@@ -72,7 +68,6 @@ fun HighlightedComicListItem(
             overline = highlightedReason,
             id = listedComic.id,
             favorite = listedComic.favorite,
-            onFavoriteChange = onFavoriteChange,
             onSelected = onSelected,
             colors = ListItemDefaults.colors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -88,7 +83,6 @@ fun HighlightedComicListItem(
 @Composable
 fun HistoryEntryListItem(
     historyEntryWithListedComic: ComicDao.HistoryEntryWithListedComic,
-    onFavoriteChange: (Boolean) -> Unit,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -105,7 +99,6 @@ fun HistoryEntryListItem(
         overline = historyEntryWithListedComic.date,
         id = historyEntryWithListedComic.comicId,
         favorite = historyEntryWithListedComic.favorite,
-        onFavoriteChange = onFavoriteChange,
         onSelected = onSelected,
         modifier = modifier,
         colors = ListItemDefaults.colors(
@@ -121,7 +114,6 @@ fun AbstractComicListItem(
     description: String?,
     id: Int,
     favorite: Boolean,
-    onFavoriteChange: (Boolean) -> Unit,
     onSelected: () -> Unit,
     modifier: Modifier = Modifier,
     colors: ListItemColors = ListItemDefaults.colors(),
@@ -150,24 +142,16 @@ fun AbstractComicListItem(
             }
         },
         trailingContent = {
-            IconToggleButton(
-                checked = favorite,
-                onCheckedChange = {
-                    onFavoriteChange(
-                        it
-                    )
-                }) {
-                if (favorite) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Favorited"
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Click to favorite"
-                    )
-                }
+            if (favorite) {
+                Icon(
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = "Favorited"
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.FavoriteBorder,
+                    contentDescription = "Click to favorite"
+                )
             }
         },
         modifier = modifier

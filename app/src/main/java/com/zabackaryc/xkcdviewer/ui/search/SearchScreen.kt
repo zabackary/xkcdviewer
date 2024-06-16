@@ -57,9 +57,6 @@ fun SearchScreen(
                         item {
                             HighlightedComicListItem(
                                 listedComic = item,
-                                onFavoriteChange = {
-                                    viewModel.setFavoriteComic(item.id, it)
-                                },
                                 onSelected = {
                                     onComicSelected(item.id)
                                 },
@@ -93,9 +90,6 @@ fun SearchScreen(
                                 items(historySample) { item ->
                                     HistoryEntryListItem(
                                         historyEntryWithListedComic = item,
-                                        onFavoriteChange = {
-                                            viewModel.setFavoriteComic(item.comicId, it)
-                                        },
                                         onSelected = {
                                             onComicSelected(item.comicId)
                                         }
@@ -107,9 +101,6 @@ fun SearchScreen(
                         items(activeSearch.results, key = { it.id }) { item ->
                             ComicListItem(
                                 listedComic = item,
-                                onFavoriteChange = {
-                                    viewModel.setFavoriteComic(item.id, it)
-                                },
                                 onSelected = {
                                     onComicSelected(item.id)
                                 },
