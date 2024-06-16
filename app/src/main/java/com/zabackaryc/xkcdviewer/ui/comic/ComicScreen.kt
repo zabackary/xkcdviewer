@@ -318,7 +318,7 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                         comicDetailsOpen = false
                     },
                     onExplainOpen = {
-                        viewModel.explainComic(context, it)
+                        viewModel.explainComicInBrowser(context, it, true)
                         comicDetailsSheetState.hide()
                         comicDetailsOpen = false
                     },

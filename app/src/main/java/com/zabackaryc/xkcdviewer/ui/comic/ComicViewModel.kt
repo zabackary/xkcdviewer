@@ -4,6 +4,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -129,12 +130,26 @@ class ComicViewModel @Inject constructor(
         startActivity(context, share, null)
     }
 
-    fun explainComic(context: Context, listedComic: ListedComic) {
-        startActivity(
-            context,
-            Intent(Intent.ACTION_VIEW, Uri.parse("https://explainxkcd.com/${listedComic.id}/")),
-            null
-        )
+    fun explainComicInBrowser(context: Context, listedComic: ListedComic, customTabs: Boolean) {
+        if (customTabs) {
+            val intent = CustomTabsIntent.Builder().apply {
+                setShowTitle(true)
+            }.build()
+            intent.launchUrl(context, Uri.parse("https://explainxkcd.com/${listedComic.id}/"))
+        } else {
+            startActivity(
+                context,
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://explainxkcd.com/${listedComic.id}/")),
+                null
+            )
+        }
+    }
+
+    fun openLinkedURL(context: Context, url: String) {
+        val intent = CustomTabsIntent.Builder().apply {
+            setShowTitle(true)
+        }.build()
+        intent.launchUrl(context, Uri.parse(url))
     }
 
     fun comicLink(context: Context, url: String) {
