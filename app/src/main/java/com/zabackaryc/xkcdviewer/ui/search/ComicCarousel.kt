@@ -43,7 +43,9 @@ import kotlin.math.min
 
 fun defaultImageURL(listedComic: ListedComic) =
     "https://imgs.xkcd.com/comics/${
-        listedComic.title.lowercase().replace(Regex("[- (]"), "_").replace(Regex("[^a-z_]"), "")
+        listedComic.title.lowercase()
+            .replace(Regex("[- .()/](?!$)"), "_")
+            .replace(Regex("[^0-9a-z_]"), "")
     }.png"
 
 @Composable
