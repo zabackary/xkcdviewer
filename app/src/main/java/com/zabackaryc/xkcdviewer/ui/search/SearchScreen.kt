@@ -104,7 +104,7 @@ fun SearchScreen(
                             }
                         }
                     } else {
-                        items(activeSearch.results) { item ->
+                        items(activeSearch.results, key = { it.id }) { item ->
                             ComicListItem(
                                 listedComic = item,
                                 onFavoriteChange = {
@@ -112,7 +112,8 @@ fun SearchScreen(
                                 },
                                 onSelected = {
                                     onComicSelected(item.id)
-                                }
+                                },
+                                modifier = Modifier.animateItem()
                             )
                         }
                     }
