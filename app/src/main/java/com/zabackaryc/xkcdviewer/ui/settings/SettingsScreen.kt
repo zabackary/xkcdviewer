@@ -77,7 +77,7 @@ fun SettingsScreen(
             item {
                 SettingsSwitch(
                     title = { Text("Show news") },
-                    subtitle = { Text("Shows the news shown below the xkcd logo on xkcd.com on the homepage, if any") },
+                    subtitle = { Text("Shows the news shown below the xkcd logo on xkcd.com on the homepage") },
                     state = appNewsBannerState
                 )
             }
@@ -90,8 +90,8 @@ fun SettingsScreen(
             }
             item {
                 SettingsSwitch(
-                    title = { Text("Adapt to dark theme") },
-                    subtitle = { Text("Processes the comic content to match the theme") },
+                    title = { Text("Adapt to theme") },
+                    subtitle = { Text("Processes the comic content to match the theme if the comic is monochrome, which helps if you're reading late at night") },
                     state = comicDarkThemeState
                 )
             }
@@ -105,7 +105,7 @@ fun SettingsScreen(
             item {
                 SettingsSwitch(
                     title = { Text("Save history") },
-                    subtitle = { Text("Saves comics you view to History. This does not delete your previous viewing history.") },
+                    subtitle = { Text("Saves comics you view to History. Toggling this does not affect your previous viewing history, which you can manage with the buttons below") },
                     state = comicSaveHistoryState
                 )
             }
@@ -114,18 +114,24 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
+                    FilledTonalButton(
+                        onClick = { /* TODO */ },
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("View history")
+                    }
                     FilledTonalButton(onClick = {
                         historyDeleteConfirmOpen = true
                     }) {
-                        Text("Delete history")
+                        Text("Delete")
                     }
                 }
             }
             item {
                 SettingsList(
-                    title = { Text("Download comics for offline viewing") },
+                    title = { Text("Download comics for offline viewing (not implemented)") },
                     items = listOf("All comics", "Only favorites", "Never"),
                     state = comicDownloadState
                 )
@@ -139,15 +145,15 @@ fun SettingsScreen(
             }
             item {
                 Text(
-                    text = "What If reader",
+                    text = "What If reader (not implemented)",
                     style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.padding(16.dp, 12.dp, 16.dp, 0.dp),
                 )
             }
             item {
                 SettingsSwitch(
-                    title = { Text("Adapt to dark theme") },
-                    subtitle = { Text("Processes the article content to make it more pleasant to read in dark areas") },
+                    title = { Text("Adapt to theme (not implemented)") },
+                    subtitle = { Text("Processes the article content to match the system light/dark theme, making it more pleasant to read in dark areas") },
                     state = articleDarkThemeState
                 )
             }
@@ -208,6 +214,7 @@ fun SettingsScreen(
                     onClick = {
                         scope.launch {
                             viewModel.deleteHistory()
+                            historyDeleteConfirmOpen = false
                         }
                     },
                     enabled = !viewModel.isDeletingHistory

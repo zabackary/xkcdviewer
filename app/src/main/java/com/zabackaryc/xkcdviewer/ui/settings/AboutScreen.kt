@@ -144,6 +144,10 @@ fun AboutScreen(
                 }
             )
             ListItem(
+                headlineContent = { Text("Buy me a coffee") },
+                supportingContent = { Text("Actually, I don't drink coffee, so feel free to donate your money elsewhere. Leaving a review encourages me and helps me know what to work on next, though!") }
+            )
+            ListItem(
                 headlineContent = { Text("Made with \ud83d\udc96 by @zabackary in \u65E5\u672c") },
                 // Romans 5:6-8 (NIV, SKY 2017)
                 supportingContent = { Text("You see, at just the right time, when we were still powerless, Christ died for the ungodly. Very rarely will anyone die for a righteous person, though for a good person someone might possibly dare to die. But God demonstrates his own love for us in this: While we were still sinners, Christ died for us.\n実にキリストは、私たちがまだ弱かったころ、定められた時に、不敬虔な者たちのために死んでくださいました。正しい人のためであっても、死ぬ人はほとんどいません。善良な人のためなら、進んで死ぬ人がいるかもしれません。しかし、私たちがまだ罪人であったとき、キリストが私たちのために死なれたことによって、神は私たちに対するご自分の愛を明らかにしておられます。") }
