@@ -47,6 +47,8 @@ fun SettingsScreen(
     val comicActionsExpandState = SettingsItem.ComicActionsExpand.rememberPreferenceState()
     val comicSaveHistoryState = SettingsItem.ComicSaveHistory.rememberPreferenceState()
     val comicDownloadState = SettingsItem.ComicDownload.rememberPreferenceState()
+    val comicExplainXkcdIntegrationState =
+        SettingsItem.ComicExplainXkcdIntegration.rememberPreferenceState()
     val comicDarkThemeState = SettingsItem.ComicDarkTheme.rememberPreferenceState()
     val comicMetadataPopupState = SettingsItem.ComicMetadataPopup.rememberPreferenceState()
     val articleDarkThemeState = SettingsItem.ArticleDarkTheme.rememberPreferenceState()
@@ -134,6 +136,18 @@ fun SettingsScreen(
                     title = { Text("Download comics for offline viewing (not implemented)") },
                     items = listOf("All comics", "Only favorites", "Never"),
                     state = comicDownloadState
+                )
+            }
+            item {
+                SettingsList(
+                    title = { Text("explain xkcd integration") },
+                    items = listOf(
+                        "Full, in-app browsing",
+                        "Open in integrated browser (i.e. Custom Tabs)",
+                        "Open in default browser",
+                        "Disabled"
+                    ),
+                    state = comicExplainXkcdIntegrationState
                 )
             }
             item {

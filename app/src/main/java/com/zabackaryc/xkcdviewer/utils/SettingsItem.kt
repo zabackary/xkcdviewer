@@ -9,9 +9,7 @@ import com.alorma.compose.settings.storage.preferences.rememberPreferenceIntSett
 
 sealed class SettingsItem<T>(val preferenceKey: String, val defaultValue: T) {
     @Composable
-    open fun rememberPreferenceState(): SettingValueState<T> {
-        throw NotImplementedError()
-    }
+    abstract fun rememberPreferenceState(): SettingValueState<T>
 
     val currentValue: T
         @Composable
@@ -66,6 +64,17 @@ sealed class SettingsItem<T>(val preferenceKey: String, val defaultValue: T) {
     data object AppNewsBanner : BooleanSettingsItem("app:news-banner", true)
     data object ComicActionsExpand : BooleanSettingsItem("comic:actions-expand", false)
     data object ComicSaveHistory : BooleanSettingsItem("comic:save-history", true)
+    data object ComicExplainXkcdIntegration :
+        IntSettingsItem("comic:explain-xkcd-integration", Values.FULL.ordinal) {
+        // Ordinal is serialized into preferences
+        enum class Values {
+            FULL,
+            CUSTOM_TABS,
+            BROWSER,
+            DISABLED
+        }
+    }
+
     data object ComicDownload : IntSettingsItem("comic:download", Values.NONE.ordinal) {
         // Ordinal is serialized into preferences
         @Suppress("unused")
