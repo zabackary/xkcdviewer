@@ -13,8 +13,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Badge
@@ -23,7 +21,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.PlainTooltip
@@ -150,87 +147,17 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                     TooltipBox(
                         tooltip = {
                             PlainTooltip {
-                                Text(if (listedComic?.favorite == true) "Remove favorite" else "Add favorite")
+                                Text(if (hasMetadata) "More options. This comic has extra metadata" else "More options")
                             }
                         },
                         positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
                         state = rememberTooltipState()
                     ) {
-                        IconToggleButton(
-                            checked = listedComic?.favorite ?: false,
-                            onCheckedChange = {
-                                if (cachedComic != null) {
-                                    viewModel.setFavoriteComic(
-                                        pagerState.currentPage + 1, it
-                                    )
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            if (it && listedComic != null) "Added '${listedComic.title}' to favorites"
-                                            else if (listedComic != null) "Removed '${listedComic.title}' from favorites"
-                                            else ""
-                                        )
-                                    }
-                                } else {
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            "There doesn't seem to be a comic to favorite."
-                                        )
-                                    }
-                                }
-                            }
-                        ) {
-                            if (listedComic?.favorite == true) {
-                                Icon(
-                                    imageVector = Icons.Default.Favorite,
-                                    contentDescription = "Favorited"
-                                )
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Default.FavoriteBorder,
-                                    contentDescription = "Click to favorite"
-                                )
-                            }
-                        }
-                    }
-                    if (hasMetadata) {
-                        TooltipBox(
-                            tooltip = {
-                                PlainTooltip {
-                                    Text("More options. This comic has extra metadata")
-                                }
-                            },
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            state = rememberTooltipState()
-                        ) {
-                            BadgedBox(badge = {
-                                Badge(
-                                    modifier = Modifier.offset((-12).dp, 12.dp)
-                                )
-                            }) {
-                                IconButton(
-                                    onClick = {
-                                        comicDetailsOpen = true
-                                        comicDetailsCurrentComicId = listedComic?.id
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = "More options (comic has extra metadata)"
-                                    )
-
-                                }
-                            }
-                        }
-                    } else {
-                        TooltipBox(
-                            tooltip = {
-                                PlainTooltip {
-                                    Text("More options")
-                                }
-                            },
-                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                            state = rememberTooltipState()
-                        ) {
+                        BadgedBox(badge = {
+                            if (hasMetadata) Badge(
+                                modifier = Modifier.offset((-12).dp, 12.dp)
+                            )
+                        }) {
                             IconButton(
                                 onClick = {
                                     comicDetailsOpen = true
@@ -239,12 +166,11 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.MoreVert,
-                                    contentDescription = "More options"
+                                    contentDescription = if (hasMetadata) "More options. This comic has extra metadata" else "More options"
                                 )
                             }
                         }
                     }
-
                 }
             )
         },
@@ -305,28 +231,18 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         ) {
             val modalScrollState = rememberScrollState()
             Box(Modifier.verticalScroll(modalScrollState)) {
-                ComicDetails(listedComic = comicDetailsCurrentComic?.first,
+                ComicDetails(
+                    listedComic = comicDetailsCurrentComic?.first,
                     cachedComic = comicDetailsCurrentComic?.second,
-                    onShareRequest = {
-                        viewModel.shareComic(context, it.first, it.second)
-                        comicDetailsSheetState.hide()
-                        comicDetailsOpen = false
+                    viewModel = viewModel,
+                    snackbarHostState = snackbarHostState,
+                    onHideRequested = {
+                        coroutineScope.launch {
+                            comicDetailsSheetState.hide()
+                            comicDetailsOpen = false
+                        }
                     },
-                    onTranscriptOpen = {
-                        comicTranscript = it
-                        comicDetailsSheetState.hide()
-                        comicDetailsOpen = false
-                    },
-                    onExplainOpen = {
-                        viewModel.explainComicInBrowser(context, it, true)
-                        comicDetailsSheetState.hide()
-                        comicDetailsOpen = false
-                    },
-                    onLinkOpen = {
-                        viewModel.comicLink(context, it)
-                        comicDetailsSheetState.hide()
-                        comicDetailsOpen = false
-                    })
+                )
             }
         }
     }
@@ -361,7 +277,6 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                     )
                 }
             }
-
         }
     }
 }

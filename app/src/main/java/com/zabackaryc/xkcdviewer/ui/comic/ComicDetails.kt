@@ -16,11 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Newspaper
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +29,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
@@ -46,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -54,7 +51,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.data.ListedComic
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
@@ -65,10 +61,9 @@ import kotlinx.coroutines.launch
 fun ComicDetails(
     listedComic: ListedComic?,
     cachedComic: CachedComic?,
-    onShareRequest: suspend (Pair<ListedComic, CachedComic>) -> Unit,
-    onTranscriptOpen: suspend (String) -> Unit,
-    onLinkOpen: suspend (String) -> Unit,
-    onExplainOpen: suspend (ListedComic) -> Unit
+    viewModel: ComicViewModel,
+    snackbarHostState: SnackbarHostState,
+    onHideRequested: () -> Unit
 ) {
     val expandActionsByDefault = SettingsItem.ComicActionsExpand.currentValue
     var actionsExpanded by remember { mutableStateOf(expandActionsByDefault) }
@@ -94,14 +89,13 @@ fun ComicDetails(
             ComicActions(
                 listedComic = listedComic,
                 cachedComic = cachedComic,
-                onShareRequest = onShareRequest,
-                onTranscriptOpen = onTranscriptOpen,
-                onLinkOpen = onLinkOpen,
-                onExplainOpen = onExplainOpen,
+                viewModel = viewModel,
+                snackbarHostState = snackbarHostState,
                 expanded = actionsExpanded,
                 onExpandChange = {
                     actionsExpanded = it
-                }
+                },
+                onHideRequested = onHideRequested
             )
         }
     }
@@ -111,73 +105,28 @@ fun ComicDetails(
 fun ComicActions(
     listedComic: ListedComic?,
     cachedComic: CachedComic?,
-    onShareRequest: suspend (Pair<ListedComic, CachedComic>) -> Unit,
-    onTranscriptOpen: suspend (String) -> Unit,
-    onLinkOpen: suspend (String) -> Unit,
-    onExplainOpen: suspend (ListedComic) -> Unit,
+    viewModel: ComicViewModel,
+    snackbarHostState: SnackbarHostState,
     expanded: Boolean,
-    onExpandChange: (Boolean) -> Unit
+    onExpandChange: (Boolean) -> Unit,
+    onHideRequested: () -> Unit
 ) {
     val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
     if (cachedComic != null && listedComic != null) {
         val content = @Composable { renderAsExpanded: Boolean ->
-            ComicAction(
-                shortName = "Share",
-                actionableName = "Share comic",
-                onClick = {
-                    coroutineScope.launch {
-                        onShareRequest(listedComic to cachedComic)
-                    }
-                },
-                imageVector = Icons.Default.Share,
-                renderAsExpanded = renderAsExpanded
-            )
-            ComicAction(
-                shortName = "Explain",
-                actionableName = "Open Explain XKCD explanation",
-                onClick = {
-                    coroutineScope.launch {
-                        onExplainOpen(listedComic)
-                    }
-                },
-                painter = painterResource(R.drawable.explainxkcd_icon),
-                renderAsExpanded = renderAsExpanded
-            )
-            if (cachedComic.link != null) {
+            ComicActionType.allActionTypes.forEach {
                 ComicAction(
-                    shortName = "Linked URL",
-                    actionableName = "Open linked URL in browser",
-                    onClick = {
-                        coroutineScope.launch {
-                            onLinkOpen(cachedComic.link)
-                        }
-                    },
-                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    actionType = it,
+                    listedComic = listedComic,
+                    cachedComic = cachedComic,
+                    viewModel = viewModel,
+                    snackbarHostState = snackbarHostState,
                     renderAsExpanded = renderAsExpanded,
-                    showBadge = true
-                )
-            }
-            if (cachedComic.transcript != null) {
-                ComicAction(
-                    shortName = "Transcript",
-                    actionableName = "View official transcript",
-                    onClick = {
-                        coroutineScope.launch {
-                            onTranscriptOpen(cachedComic.transcript)
-                        }
-                    },
-                    imageVector = Icons.Default.Description,
-                    renderAsExpanded = renderAsExpanded
+                    onHideRequested = onHideRequested
                 )
             }
         }
         Column {
-            AnimatedVisibility(visible = expanded) {
-                Column {
-                    content(true)
-                }
-            }
             AnimatedVisibility(visible = !expanded) {
                 Row(modifier = Modifier.padding(8.dp)) {
                     Row(
@@ -206,43 +155,72 @@ fun ComicActions(
                     }
                 }
             }
-
+            AnimatedVisibility(visible = expanded) {
+                Column {
+                    content(true)
+                }
+            }
         }
     }
 }
 
 @Composable
 fun ComicAction(
-    shortName: String,
-    actionableName: String,
-    onClick: () -> Unit,
+    actionType: ComicActionType,
+    listedComic: ListedComic,
+    cachedComic: CachedComic,
+    viewModel: ComicViewModel,
+    snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
-    renderAsExpanded: Boolean = true,
-    imageVector: ImageVector? = null,
-    painter: Painter? = null,
-    showBadge: Boolean = false
+    renderAsExpanded: Boolean,
+    onHideRequested: () -> Unit
 ) {
-    if (!((imageVector == null) xor (painter == null))) throw IllegalArgumentException("must pass imageVector or painter, but not both")
+    val comicScope = ComicActionType.ComicActionScope(
+        listedComic,
+        cachedComic,
+        viewModel,
+        LocalContext.current,
+        snackbarHostState
+    )
+
+    if (!actionType.show(comicScope)) return
+
     val icon = @Composable { contentDescription: String? ->
-        if (imageVector != null) {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(24.dp)
-            )
-        } else if (painter != null) {
-            Icon(
-                painter = painter,
-                contentDescription = contentDescription,
-                modifier = Modifier.size(24.dp)
-            )
+        when (val iconSrc = actionType.icon(comicScope)) {
+            is ImageVector -> {
+                Icon(
+                    imageVector = iconSrc,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            is Int -> {
+                Icon(
+                    painter = painterResource(id = iconSrc),
+                    contentDescription = contentDescription,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            else -> {
+                throw UnsupportedOperationException("unsupported icon type")
+            }
+        }
+    }
+
+    val coroutineScope = rememberCoroutineScope()
+    val runAction = {
+        if (actionType.closeBeforeRun) onHideRequested()
+        coroutineScope.launch {
+            actionType.action(comicScope)
         }
     }
 
     if (renderAsExpanded) {
         ListItem(
             leadingContent = {
-                if (showBadge) {
+                if (actionType.showBadge(comicScope)) {
                     BadgedBox(badge = {
                         Badge()
                     }) {
@@ -252,31 +230,35 @@ fun ComicAction(
                     icon(null)
                 }
             },
-            headlineContent = { Text(shortName) },
-            modifier = modifier.clickable {
-                onClick()
-            },
+            headlineContent = { Text(actionType.shortName) },
+            supportingContent = actionType.contextualName(comicScope)?.let { { Text(text = it) } },
+            modifier = modifier.clickable { runAction() },
             colors = ListItemDefaults.colors(
                 containerColor = Color.Transparent
             )
         )
     } else {
         TooltipBox(
-            tooltip = { PlainTooltip { Text(shortName) } },
+            tooltip = {
+                PlainTooltip {
+                    Text(
+                        when (val contextualName = actionType.contextualName(comicScope)) {
+                            is String -> contextualName
+                            else -> actionType.shortName
+                        }
+                    )
+                }
+            },
             modifier = modifier,
             positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
             state = rememberTooltipState()
         ) {
             val iconButton = @Composable {
-                FilledTonalIconButton(
-                    onClick = {
-                        onClick()
-                    }
-                ) {
-                    icon(actionableName)
+                FilledTonalIconButton(onClick = { runAction() }) {
+                    icon(actionType.actionableName)
                 }
             }
-            if (showBadge) {
+            if (actionType.showBadge(comicScope)) {
                 BadgedBox(badge = {
                     Badge(
                         modifier = Modifier.offset((-12).dp, 12.dp)
@@ -338,30 +320,4 @@ fun NewsBubble(title: String, content: String, modifier: Modifier = Modifier) {
 @Composable
 fun NewsBubblePreview() {
     NewsBubble(title = "Fake news!", content = "This is fake news!! It's not real!")
-}
-
-@Preview
-@Composable
-fun ComicDetailsPreview() {
-    ComicDetails(listedComic = ListedComic(
-        id = 0, title = "Title", date = "10-01-2008", favorite = true, note = "This is a note"
-    ), cachedComic = CachedComic(
-        id = 0,
-        imgUrl = "https://imgs.xkcd.com/comics/siphon.png",
-        mouseover = "Mouseover text lives here",
-        transcript = "Example transcript.",
-        dynamicHtml = null,
-        link = null,
-        newsContent = null
-    ), onShareRequest = {}, onExplainOpen = {}, onTranscriptOpen = {}, onLinkOpen = {})
-}
-
-@Preview
-@Composable
-fun ComicDetailsLoadingPreview() {
-    ComicDetails(listedComic = null,
-        cachedComic = null,
-        onShareRequest = {},
-        onExplainOpen = {},
-        onTranscriptOpen = {}, onLinkOpen = {})
 }
