@@ -78,7 +78,7 @@ class SearchViewModel @Inject constructor(
                     null
                 } else {
                     val newResults = comicsRepository.searchComics(
-                        favorited = activeSearch.onlyFavorites,
+                        favorited = if (activeSearch.onlyFavorites) true else null,
                         filter = activeSearch.filter,
                         sort = activeSearch.comicSort,
                         limit = pageSize,
