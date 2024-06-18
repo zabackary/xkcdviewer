@@ -20,7 +20,7 @@ class XkcdViewerApplication : Application(), ImageLoaderFactory {
             .diskCache {
                 DiskCache.Builder()
                     .directory(cacheDir.resolve("image_cache"))
-                    .maxSizeBytes(5 * 1024 * 1024)
+                    .maxSizeBytes(1024 * 1024 * 256) // 0.25 gb
                     .build()
             }
             .diskCachePolicy(CachePolicy.ENABLED)
