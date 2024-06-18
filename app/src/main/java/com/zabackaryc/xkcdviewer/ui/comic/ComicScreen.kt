@@ -1,5 +1,12 @@
 package com.zabackaryc.xkcdviewer.ui.comic
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.Badge
@@ -33,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
@@ -44,17 +53,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
 import com.zabackaryc.xkcdviewer.utils.getActivity
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -62,6 +75,7 @@ import kotlinx.coroutines.launch
 fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val collapsedToolbarCoroutineScope = rememberCoroutineScope()
 
     val comicDetailsSheetState = rememberModalBottomSheetState()
     var comicDetailsOpen by remember { mutableStateOf(false) }
@@ -72,6 +86,15 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         }
 
     var comicTranscript by remember { mutableStateOf<String?>(null) }
+
+    var interactiveMode by rememberSaveable { mutableStateOf(false) }
+    var toolbarIsCollapsed by rememberSaveable { mutableStateOf(false) }
+    BackHandler(interactiveMode || toolbarIsCollapsed) {
+        if (toolbarIsCollapsed) {
+            toolbarIsCollapsed = false
+            collapsedToolbarCoroutineScope.coroutineContext.cancelChildren()
+        } else if (interactiveMode) interactiveMode = false
+    }
 
     val pagerState =
         rememberPagerState(initialPage = viewModel.uiState.currentComicId - 1, pageCount = {
@@ -90,8 +113,19 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
 
     val userWantsMetadataPopup = SettingsItem.ComicMetadataPopup.currentValue
     val hasMetadata = cachedComic?.link != null || cachedComic?.newsContent != null
-    LaunchedEffect(hasMetadata, listedComic?.id) {
-        if (hasMetadata && userWantsMetadataPopup && cachedComic != null) {
+    val isInteractive = cachedComic?.dynamicHtml != null
+    LaunchedEffect(isInteractive, hasMetadata, listedComic?.id) {
+        if (isInteractive) {
+            if (snackbarHostState.showSnackbar(
+                    message = "This comic is interactive",
+                    actionLabel = "Enter interactive mode",
+                    withDismissAction = true,
+                    duration = SnackbarDuration.Indefinite
+                ) == SnackbarResult.ActionPerformed
+            ) {
+                interactiveMode = true
+            }
+        } else if (hasMetadata && userWantsMetadataPopup && cachedComic != null) {
             if (snackbarHostState.showSnackbar(
                     message = when ((cachedComic.link != null) to (cachedComic.newsContent != null)) {
                         true to false -> "This comic is a clickable link."
@@ -112,84 +146,170 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(
-                            text = listedComic?.title ?: "",
-                            style = MaterialTheme.typography.headlineSmall,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                        Text(
-                            text = if (listedComic != null) "#${listedComic.id} · ${listedComic.date}" else "",
-                            style = MaterialTheme.typography.titleSmall,
-                            maxLines = 1
-                        )
-                    }
-                },
-                navigationIcon = {
-                    TooltipBox(
-                        tooltip = {
-                            PlainTooltip { Text("Back") }
-                        },
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        state = rememberTooltipState()
-                    ) {
-                        IconButton(
-                            onClick = onNavigationUp
-                        ) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                        }
-                    }
-                },
-                actions = {
-                    TooltipBox(
-                        tooltip = {
-                            PlainTooltip {
-                                Text(if (hasMetadata) "More options. This comic has extra metadata" else "More options")
-                            }
-                        },
-                        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
-                        state = rememberTooltipState()
-                    ) {
-                        BadgedBox(badge = {
-                            if (hasMetadata) Badge(
-                                modifier = Modifier.offset((-12).dp, 12.dp)
+            AnimatedVisibility(
+                visible = !toolbarIsCollapsed,
+                enter = expandIn { IntSize(it.width, 0) },
+                exit = shrinkOut { IntSize(it.width, 0) }
+            ) {
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(
+                                text = listedComic?.title ?: "",
+                                style = MaterialTheme.typography.headlineSmall,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1
                             )
-                        }) {
-                            IconButton(
-                                onClick = {
-                                    comicDetailsOpen = true
-                                    comicDetailsCurrentComicId = listedComic?.id
-                                }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.MoreVert,
-                                    contentDescription = if (hasMetadata) "More options. This comic has extra metadata" else "More options"
+                            AnimatedVisibility(visible = !interactiveMode) {
+                                Text(
+                                    text = if (listedComic != null) "#${listedComic.id} · ${listedComic.date}" else "",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    maxLines = 1
                                 )
                             }
                         }
-                    }
-                }
-            )
+                    },
+                    navigationIcon = {
+                        Crossfade(
+                            targetState = interactiveMode,
+                            label = "interactive mode crossfade"
+                        ) {
+                            if (it) {
+                                TooltipBox(
+                                    tooltip = {
+                                        PlainTooltip { Text("Exit interactive mode") }
+                                    },
+                                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                    state = rememberTooltipState()
+                                ) {
+                                    IconButton(
+                                        onClick = { interactiveMode = false }
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Close,
+                                            contentDescription = "Exit interactive mode"
+                                        )
+                                    }
+                                }
+                            } else {
+                                TooltipBox(
+                                    tooltip = {
+                                        PlainTooltip { Text("Back") }
+                                    },
+                                    positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                    state = rememberTooltipState()
+                                ) {
+                                    IconButton(
+                                        onClick = onNavigationUp
+                                    ) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back"
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    actions = {
+                        AnimatedVisibility(
+                            visible = interactiveMode,
+                            enter = scaleIn(),
+                            exit = scaleOut()
+                        ) {
+                            TooltipBox(
+                                tooltip = {
+                                    PlainTooltip {
+                                        Text("Hide toolbar")
+                                    }
+                                },
+                                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                                state = rememberTooltipState()
+                            ) {
+                                IconButton(
+                                    onClick = {
+                                        collapsedToolbarCoroutineScope.ensureActive()
+                                        collapsedToolbarCoroutineScope.launch {
+                                            toolbarIsCollapsed = true
+                                            snackbarHostState.showSnackbar(
+                                                message = "Touch back to show to toolbar and exit fullscreen.",
+                                                withDismissAction = true,
+                                                duration = SnackbarDuration.Indefinite
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Fullscreen,
+                                        contentDescription = "Hide toolbar"
+                                    )
+                                }
+                            }
+                        }
+                        TooltipBox(
+                            tooltip = {
+                                PlainTooltip {
+                                    Text(if (hasMetadata) "More options. This comic has extra metadata" else "More options")
+                                }
+                            },
+                            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                            state = rememberTooltipState()
+                        ) {
+                            BadgedBox(badge = {
+                                if (hasMetadata) Badge(
+                                    modifier = Modifier.offset((-12).dp, 12.dp)
+                                )
+                            }) {
+                                IconButton(
+                                    onClick = {
+                                        comicDetailsOpen = true
+                                        comicDetailsCurrentComicId = listedComic?.id
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = if (hasMetadata) "More options. This comic has extra metadata" else "More options"
+                                    )
+                                }
+                            }
+                        }
+                    },
+                    colors = if (interactiveMode) TopAppBarDefaults.topAppBarColors().copy(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    ) else TopAppBarDefaults.topAppBarColors()
+                )
+            }
         },
         floatingActionButton = {
             val shouldShowLabel = (context.getActivity()
                 ?.let { calculateWindowSizeClass(activity = it).widthSizeClass }) != WindowWidthSizeClass.Compact
-            ExtendedFloatingActionButton(onClick = {
-                coroutineScope.launch {
-                    viewModel.uiState.totalComics?.let {
-                        pagerState.scrollToPage(
-                            page = (1..it).random(),
+            AnimatedVisibility(
+                visible = !interactiveMode,
+                enter = scaleIn(),
+                exit = scaleOut()
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.uiState.totalComics?.let {
+                                pagerState.scrollToPage(
+                                    page = (1..it).random(),
+                                )
+                            }
+                        }
+                    },
+                    text = { Text(text = "Randomize") },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Default.Shuffle, contentDescription = "Random comic"
                         )
-                    }
-                }
-            }, text = { Text(text = "Randomize") }, icon = {
-                Icon(
-                    imageVector = Icons.Default.Shuffle, contentDescription = "Random comic"
+                    },
+                    expanded = shouldShowLabel
                 )
-            }, expanded = shouldShowLabel)
+            }
         }
     ) { paddingValues ->
         viewModel.uiState.totalComics.let { totalComics ->
@@ -205,6 +325,8 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
             } else {
                 HorizontalPager(
                     modifier = Modifier.padding(paddingValues),
+                    beyondViewportPageCount = 1,
+                    userScrollEnabled = !interactiveMode,
                     pageSpacing = 8.dp,
                     state = pagerState,
                 ) { page ->
@@ -219,6 +341,10 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             comicDetailsOpen = true
                             comicDetailsCurrentComicId = page + 1
                         },
+                        interactiveMode = interactiveMode,
+                        enableInteractiveMode = {
+                            interactiveMode = true
+                        }
                     )
                 }
             }

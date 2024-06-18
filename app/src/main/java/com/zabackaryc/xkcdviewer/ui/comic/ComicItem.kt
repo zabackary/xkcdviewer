@@ -21,9 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -62,8 +64,9 @@ fun ComicItem(
     id: Int,
     cachedComic: CachedComic?,
     showComicDetails: () -> Unit,
+    interactiveMode: Boolean,
+    enableInteractiveMode: () -> Unit,
     modifier: Modifier = Modifier,
-    setElevatedAppBar: (Boolean) -> Unit = {},
 ) {
     val shouldPreprocessImage = SettingsItem.ComicDarkTheme.currentValue
     val context = LocalContext.current
@@ -93,20 +96,34 @@ fun ComicItem(
     }
     val zoomState = rememberZoomState()
     val dynamicHtmlModel = remember(cachedComic) { cachedComic?.getDynamicHtmlModel() }
-    if (cachedComic != null && dynamicHtmlModel != null && imgUrl != null) {
+    if (cachedComic != null && interactiveMode && dynamicHtmlModel != null && imgUrl != null) {
         val html = remember(dynamicHtmlModel) {
             """
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset="utf-8" />
+        <base href="https://xkcd.com/${cachedComic.id}">
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Interactive comic</title>
+        <style>
+            html, body {
+                margin: 0;
+                background-color: transparent;
+            }
+        </style>
+    </head>
     <body>
         ${dynamicHtmlModel.headerExtra}
-        <div id="comic">
-            ${dynamicHtmlModel.pre}
-            <img
-                src="${escapeHtml(cachedComic.imgUrl)}"
-                title="${escapeHtml(cachedComic.mouseover)}"
-                style="image-orientation:none" ${dynamicHtmlModel.imgAttr} />
-            ${dynamicHtmlModel.post}
+        <div id="middleContainer">
+            <div id="comic">
+                ${dynamicHtmlModel.pre}
+                <img
+                    src="${escapeHtml(cachedComic.imgUrl)}"
+                    title="${escapeHtml(cachedComic.mouseover)}"
+                    style="image-orientation:none" ${dynamicHtmlModel.imgAttr} />
+                ${dynamicHtmlModel.post}
+            </div>
         </div>
     </body>
 </html>"""
@@ -120,7 +137,13 @@ fun ComicItem(
             state = webViewState,
             modifier = modifier.fillMaxSize(),
             captureBackPresses = false,
-            onCreated = { it.settings.javaScriptEnabled = true }
+            onCreated = {
+                it.settings.apply {
+                    javaScriptEnabled = true
+                    useWideViewPort = true
+                    loadWithOverviewMode = true
+                }
+            },
         )
     } else if (id == 404) {
         var eggScale by remember { mutableFloatStateOf(1.0F) }
@@ -203,50 +226,62 @@ fun ComicItem(
             .build()
         else imgUrl
         val hapticFeedback = LocalHapticFeedback.current
-        SubcomposeAsyncImage(
-            model = imageModel,
-            contentDescription = cachedComic?.transcript,
-            modifier = modifier
-                .fillMaxSize()
-                .rotate(exception?.rotate?.toFloat() ?: 0f)
-                .zoomable(zoomState)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = {
-                            hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                            showComicDetails()
-                        }
-                    )
-                }
-        ) {
-            if (painter.state is AsyncImagePainter.State.Loading) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) { CircularProgressIndicator() }
-            } else if (painter.state is AsyncImagePainter.State.Error || cachedComic == null) {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+        Column {
+            if (!interactiveMode && dynamicHtmlModel != null) {
+                TextButton(
+                    onClick = { enableInteractiveMode() },
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(4.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.ErrorOutline,
-                        contentDescription = "Failed to load image.",
-                        modifier = Modifier.size(36.dp)
-                    )
-                    Text(
-                        text = "Comic failed to load",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.padding(PaddingValues(top = 12.dp))
-                    )
+                    Text("Enter interactive mode")
                 }
-            } else {
-                SubcomposeAsyncImageContent()
+                HorizontalDivider()
+            }
+            SubcomposeAsyncImage(
+                model = imageModel,
+                contentDescription = cachedComic?.transcript,
+                modifier = modifier
+                    .fillMaxSize()
+                    .rotate(exception?.rotate?.toFloat() ?: 0f)
+                    .zoomable(zoomState)
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onLongPress = {
+                                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                showComicDetails()
+                            }
+                        )
+                    }
+            ) {
+                if (painter.state is AsyncImagePainter.State.Loading) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) { CircularProgressIndicator() }
+                } else if (painter.state is AsyncImagePainter.State.Error || cachedComic == null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ErrorOutline,
+                            contentDescription = "Failed to load image.",
+                            modifier = Modifier.size(36.dp)
+                        )
+                        Text(
+                            text = "Comic failed to load",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(PaddingValues(top = 12.dp))
+                        )
+                    }
+                } else {
+                    SubcomposeAsyncImageContent()
+                }
             }
         }
-
     }
 }
