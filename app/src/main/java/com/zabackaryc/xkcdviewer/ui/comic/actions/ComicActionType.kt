@@ -1,4 +1,4 @@
-package com.zabackaryc.xkcdviewer.ui.comic
+package com.zabackaryc.xkcdviewer.ui.comic.actions
 
 import android.content.Context
 import androidx.annotation.DrawableRes
@@ -6,13 +6,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Fullscreen
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.zabackaryc.xkcdviewer.R
 import com.zabackaryc.xkcdviewer.data.CachedComic
 import com.zabackaryc.xkcdviewer.data.ListedComic
+import com.zabackaryc.xkcdviewer.ui.comic.ComicViewModel
 
 @Suppress("unused")
 sealed class ComicActionType(
@@ -45,7 +48,8 @@ sealed class ComicActionType(
         cachedComic: CachedComic,
         val viewModel: ComicViewModel,
         val context: Context,
-        val snackbarHostState: SnackbarHostState
+        val snackbarHostState: SnackbarHostState,
+        val uiInterface: ComicActionUiInterface
     ) : ComicScope(listedComic, cachedComic)
 
     data object FavoriteStatusActionType : ComicActionType(
@@ -79,24 +83,25 @@ sealed class ComicActionType(
         shortName = "Transcript",
         actionableName = "Open official transcript",
         action = {
-            // TODO: implement
+            uiInterface.showTranscript()
         },
         icon = { Icons.Default.Description },
         show = {
             cachedComic.transcript != null
         },
-        id = 2
+        id = 2,
+        closeBeforeRun = false
     )
 
     data object ExplainActionType : ComicActionType(
         shortName = "Explain",
         actionableName = "Open explain xkcd explanation",
         action = {
-            // TODO: should respect explain setting
-            viewModel.explainComicInBrowser(context, listedComic, true)
+            uiInterface.showExplain()
         },
         icon = { R.drawable.explainxkcd_icon },
-        id = 3
+        id = 3,
+        closeBeforeRun = false
     )
 
     data object LinkActionType : ComicActionType(
@@ -110,6 +115,26 @@ sealed class ComicActionType(
         showBadge = { true },
         show = { cachedComic.link != null },
         id = 4
+    )
+
+    data object FullscreenActionType : ComicActionType(
+        shortName = "Enter fullscreen",
+        actionableName = "Enter fullscreen",
+        action = {
+            uiInterface.enterFullscreen()
+        },
+        icon = { Icons.Default.Fullscreen },
+        id = 5
+    )
+
+    data object RandomizeActionType : ComicActionType(
+        shortName = "Randomize",
+        actionableName = "Jump to a random comic",
+        action = {
+            uiInterface.randomize()
+        },
+        icon = { Icons.Default.Shuffle },
+        id = 5
     )
 
     companion object {

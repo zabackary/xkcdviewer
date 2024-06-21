@@ -64,6 +64,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.zabackaryc.xkcdviewer.ui.comic.actions.ComicDetails
 import com.zabackaryc.xkcdviewer.utils.SettingsItem
 import com.zabackaryc.xkcdviewer.utils.getActivity
 import kotlinx.coroutines.cancelChildren
@@ -110,6 +111,14 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
 
     val (listedComic, cachedComic) = viewModel.uiState.data[pagerState.currentPage + 1]
         ?: (null to null)
+
+    val randomize = suspend {
+        viewModel.uiState.totalComics?.let {
+            pagerState.scrollToPage(
+                page = (1..it).random(),
+            )
+        }
+    }
 
     val userWantsMetadataPopup = SettingsItem.ComicMetadataPopup.currentValue
     val hasMetadata = cachedComic?.link != null || cachedComic?.newsContent != null
@@ -287,18 +296,14 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
             val shouldShowLabel = (context.getActivity()
                 ?.let { calculateWindowSizeClass(activity = it).widthSizeClass }) != WindowWidthSizeClass.Compact
             AnimatedVisibility(
-                visible = !interactiveMode,
+                visible = !interactiveMode && !toolbarIsCollapsed,
                 enter = scaleIn(),
                 exit = scaleOut()
             ) {
                 ExtendedFloatingActionButton(
                     onClick = {
                         coroutineScope.launch {
-                            viewModel.uiState.totalComics?.let {
-                                pagerState.scrollToPage(
-                                    page = (1..it).random(),
-                                )
-                            }
+                            randomize()
                         }
                     },
                     text = { Text(text = "Randomize") },
@@ -368,6 +373,14 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
                             comicDetailsOpen = false
                         }
                     },
+                    onFullscreenRequested = {
+                        toolbarIsCollapsed = true
+                    },
+                    onRandomizeRequested = {
+                        coroutineScope.launch {
+                            randomize()
+                        }
+                    }
                 )
             }
         }
