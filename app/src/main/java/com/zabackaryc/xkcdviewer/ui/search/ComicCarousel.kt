@@ -189,7 +189,8 @@ fun ComicCarousel(
     comics: () -> (List<ListedComic>)?,
     onComicSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    onBrowseMoreClicked: (() -> Unit)? = null
+    onBrowseMoreClicked: (() -> Unit)? = null,
+    fallbackContent: (@Composable () -> Unit)? = null,
 ) {
     HorizontalMultiBrowseCarousel(
         state = rememberCarouselState(
@@ -202,25 +203,29 @@ fun ComicCarousel(
         modifier = modifier
     ) { i ->
         comics().let { comics ->
-            if (comics?.size.let {
-                    it != null && i >= it
-                }) {
-                CarouselBrowseMoreItem(
-                    onClick = { onBrowseMoreClicked?.invoke() },
-                    itemInfo = carouselItemInfo,
-                    modifier = Modifier.maskClip(shape = MaterialTheme.shapes.extraLarge)
-                )
+            if (comics?.isEmpty() == true && fallbackContent != null) {
+                fallbackContent()
             } else {
-                comics?.get(i).let { listedComic ->
-                    ComicCarouselItem(
-                        listedComic = listedComic,
-                        onSelected = {
-                            if (listedComic != null) onComicSelected(listedComic.id)
-                        },
+                if (comics?.size.let {
+                        it != null && i >= it
+                    }) {
+                    CarouselBrowseMoreItem(
+                        onClick = { onBrowseMoreClicked?.invoke() },
                         itemInfo = carouselItemInfo,
-                        modifier = Modifier
-                            .maskClip(shape = MaterialTheme.shapes.extraLarge)
+                        modifier = Modifier.maskClip(shape = MaterialTheme.shapes.extraLarge)
                     )
+                } else {
+                    comics?.get(i).let { listedComic ->
+                        ComicCarouselItem(
+                            listedComic = listedComic,
+                            onSelected = {
+                                if (listedComic != null) onComicSelected(listedComic.id)
+                            },
+                            itemInfo = carouselItemInfo,
+                            modifier = Modifier
+                                .maskClip(shape = MaterialTheme.shapes.extraLarge)
+                        )
+                    }
                 }
             }
         }

@@ -130,14 +130,16 @@ fun SearchScreen(
                         onBrowseMoreClicked = { /* TODO */ }
                     )
                 }
-                item {
-                    ComicCarouselHeader("Favorites", onBrowseMoreClicked = { /* TODO */ })
-                    ComicCarousel(
-                        comics = { viewModel.uiState.favoriteComicsSample },
-                        onComicSelected = onComicSelected,
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        onBrowseMoreClicked = { /* TODO */ }
-                    )
+                if (viewModel.uiState.favoriteComicsSample?.isEmpty() != true) {
+                    item {
+                        ComicCarouselHeader("Favorites", onBrowseMoreClicked = { /* TODO */ })
+                        ComicCarousel(
+                            comics = { viewModel.uiState.favoriteComicsSample },
+                            onComicSelected = onComicSelected,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            onBrowseMoreClicked = { /* TODO */ }
+                        )
+                    }
                 }
                 item {
                     Spacer(
