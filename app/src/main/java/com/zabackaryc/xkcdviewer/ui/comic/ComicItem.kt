@@ -199,7 +199,7 @@ fun ComicItem(
                 )
             )
             Text(
-                text = "xkcd #404, published on 01-01-1970",
+                text = "#404 · 1970-01-01",
                 style = MaterialTheme.typography.titleSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(

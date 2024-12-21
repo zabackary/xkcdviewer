@@ -88,9 +88,7 @@ class ComicRepository @Inject constructor(
     }
 
     suspend fun getComicExplanation(id: Int): String? {
-        val (_, listed) = getComicById(id).first { it != null }!!
-        val pageTitle = "${listed.id}:_${listed.title.replace(" ", "_")}"
-        val response = explainApi.getExplanation(pageTitle)
+        val response = explainApi.getExplanation(id)
         val body = response.body()
         return if (response.isSuccessful && body != null) {
             body.parse.text.content
@@ -103,15 +101,11 @@ class ComicRepository @Inject constructor(
         return comicDao.getListedComic(id)
     }
 
-    fun getComicById(id: Int) = channelFlow<Pair<CachedComic, ListedComic>?> {
+    fun getComicById(id: Int) = channelFlow {
         var listedComic: ListedComic? = null
         var cachedComic: CachedComic? = null
         suspend fun checkComplete() {
-            listedComic?.let { listed ->
-                cachedComic?.let { cached ->
-                    send(Pair(cached, listed))
-                }
-            }
+            send(cachedComic to listedComic)
         }
         coroutineScope {
             withContext(Dispatchers.IO) {

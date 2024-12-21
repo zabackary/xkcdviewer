@@ -4,7 +4,7 @@ val accompanistVersion = "0.28.0"
 val material3Version = "1.1.1"
 val navVersion = "2.7.7"
 val roomVersion = "2.6.1"
-val hiltVersion = "2.48.1"
+val hiltVersion = "2.49"
 val retrofitVersion = "2.9.0"
 val okhttp3Version = "4.10.0"
 val gsonVersion = "2.10.1"
@@ -43,7 +43,7 @@ android {
     defaultConfig {
         applicationId = "com.zabackaryc.xkcdviewer"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -104,14 +104,14 @@ dependencies {
 
     // Core
     implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
 
     // Compose
     // The BOM isn"t used for material3 deps b/c it"s not up-to-date
-    implementation("androidx.activity:activity-compose:1.9.0")
+    implementation("androidx.activity:activity-compose:1.9.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:1.3.0-beta02") // to use latest features not in bom
+    implementation("androidx.compose.material3:material3:1.3.0-beta05") // to use latest features not in bom
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation("androidx.navigation:navigation-compose:$navVersion")
     implementation("androidx.compose.material:material-icons-extended")
@@ -120,8 +120,8 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

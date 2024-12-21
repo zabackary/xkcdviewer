@@ -79,8 +79,8 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
     val collapsedToolbarCoroutineScope = rememberCoroutineScope()
 
     val comicDetailsSheetState = rememberModalBottomSheetState()
-    var comicDetailsOpen by remember { mutableStateOf(false) }
-    var comicDetailsCurrentComicId by remember { mutableStateOf<Int?>(null) }
+    var comicDetailsOpen by rememberSaveable { mutableStateOf(false) }
+    var comicDetailsCurrentComicId by rememberSaveable { mutableStateOf<Int?>(null) }
     val comicDetailsCurrentComic =
         remember(comicDetailsCurrentComicId, viewModel.uiState.data) {
             viewModel.uiState.data[comicDetailsCurrentComicId]
@@ -360,29 +360,31 @@ fun ComicScreen(onNavigationUp: () -> Unit, viewModel: ComicViewModel) {
         ModalBottomSheet(
             onDismissRequest = { comicDetailsOpen = false }, sheetState = comicDetailsSheetState
         ) {
-            val modalScrollState = rememberScrollState()
-            Box(Modifier.verticalScroll(modalScrollState)) {
-                ComicDetails(
-                    listedComic = comicDetailsCurrentComic?.first,
-                    cachedComic = comicDetailsCurrentComic?.second,
-                    viewModel = viewModel,
-                    snackbarHostState = snackbarHostState,
-                    onHideRequested = {
-                        coroutineScope.launch {
-                            comicDetailsSheetState.hide()
-                            comicDetailsOpen = false
-                        }
-                    },
-                    onFullscreenRequested = {
-                        toolbarIsCollapsed = true
-                    },
-                    onRandomizeRequested = {
-                        coroutineScope.launch {
-                            randomize()
-                        }
+            ComicDetails(
+                listedComic = comicDetailsCurrentComic?.first,
+                cachedComic = comicDetailsCurrentComic?.second,
+                viewModel = viewModel,
+                snackbarHostState = snackbarHostState,
+                onHideRequested = {
+                    coroutineScope.launch {
+                        comicDetailsSheetState.hide()
+                        comicDetailsOpen = false
                     }
-                )
-            }
+                },
+                onFullscreenRequested = {
+                    toolbarIsCollapsed = true
+                },
+                onRandomizeRequested = {
+                    coroutineScope.launch {
+                        randomize()
+                    }
+                },
+                onNavigateToComic = {
+                    coroutineScope.launch {
+                        pagerState.scrollToPage(it - 1)
+                    }
+                }
+            )
         }
     }
 

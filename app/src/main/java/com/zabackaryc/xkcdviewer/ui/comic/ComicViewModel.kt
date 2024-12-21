@@ -26,6 +26,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okio.buffer
 import okio.sink
+import org.jsoup.Jsoup
 import java.io.File
 import javax.inject.Inject
 
@@ -68,12 +69,12 @@ class ComicViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             comicsRepository.getComicById(comicId).collect { comicPair ->
                 withContext(Dispatchers.Main) {
-                    uiState = if (comicPair == null) {
+                    uiState = if (comicPair.first == null || comicPair.second == null) {
                         uiState.copy(offline = true)
                     } else {
                         uiState.copy(
                             offline = false,
-                            data = uiState.data + (comicPair.second.id to (comicPair.second to comicPair.first))
+                            data = uiState.data + (comicPair.second!!.id to (comicPair.second to comicPair.first))
                         )
                     }
                 }
@@ -152,11 +153,6 @@ class ComicViewModel @Inject constructor(
         intent.launchUrl(context, Uri.parse(url))
     }
 
-    fun comicLink(context: Context, url: String) {
-        startActivity(
-            context,
-            Intent(Intent.ACTION_VIEW, Uri.parse(url)),
-            null
-        )
-    }
+    suspend fun loadExplain(comicId: Int): String? =
+        comicsRepository.getComicExplanation(comicId)
 }
