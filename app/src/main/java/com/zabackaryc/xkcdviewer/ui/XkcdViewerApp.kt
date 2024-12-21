@@ -43,167 +43,221 @@ import com.zabackaryc.xkcdviewer.ui.settings.SettingsScreen
 @Composable
 fun XkcdViewerApp() {
     val navController = rememberNavController()
-    val topLevelItems = listOf(Route.ComicList, Route.WhatIfList, Route.Settings)
 
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-    val currentDestination = navBackStackEntry?.destination
-    val isTopLevel = topLevelItems.any { it.route == currentDestination?.route }
-    val adaptiveInfo = currentWindowAdaptiveInfo()
-    val navSuiteType =
-        with(adaptiveInfo) {
-            if (!isTopLevel) {
-                NavigationSuiteType.None
-            } else if (windowPosture.isTabletop) {
-                NavigationSuiteType.NavigationBar
-            } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED ||
-                windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
-            ) {
-                NavigationSuiteType.NavigationRail
-            } else {
-                NavigationSuiteType.NavigationBar
-            }
-
-        }
-
-    NavigationSuiteScaffold(
-        layoutType = navSuiteType,
-        navigationSuiteItems = {
-            topLevelItems.forEach { route ->
-                item(
-                    icon = { Icon(route.icon, contentDescription = null) },
-                    label = { Text(stringResource(route.resourceId)) },
-                    selected = currentDestination?.hierarchy?.any { it.route == route.route } == true,
-                    onClick = {
-                        navController.navigate(route.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            // on the back stack as users select items
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
-                        }
-                    }
-                )
-            }
+    NavHost(
+        navController = navController,
+        startDestination = Route.Home.route,
+        modifier = Modifier
+            .fillMaxSize(),
+        enterTransition = {
+            fadeIn(
+                animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
+            ) + scaleIn(
+                initialScale = 0.8f,
+                animationSpec = tween(300, easing = LinearOutSlowInEasing)
+            )
+        },
+        exitTransition = {
+            fadeOut(
+                animationSpec = tween(90, easing = FastOutLinearInEasing)
+            ) + scaleOut(
+                targetScale = 1.1f,
+                animationSpec = tween(300, easing = LinearOutSlowInEasing)
+            )
+        },
+        popEnterTransition = {
+            fadeIn(
+                animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
+            ) + scaleIn(
+                initialScale = 1.1f,
+                animationSpec = tween(300, easing = LinearOutSlowInEasing)
+            )
+        },
+        popExitTransition = {
+            fadeOut(
+                animationSpec = tween(90, easing = FastOutLinearInEasing)
+            ) + scaleOut(
+                targetScale = 0.8f,
+                animationSpec = tween(300, easing = LinearOutSlowInEasing)
+            )
         }
     ) {
-        NavHost(
-            navController = navController,
-            startDestination = Route.ComicList.route,
-            modifier = Modifier
-                .fillMaxSize(),
-            enterTransition = {
-                fadeIn(
-                    animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
-                ) + scaleIn(
-                    initialScale = 0.8f,
-                    animationSpec = tween(300, easing = LinearOutSlowInEasing)
-                )
-            },
-            exitTransition = {
-                fadeOut(
-                    animationSpec = tween(90, easing = FastOutLinearInEasing)
-                ) + scaleOut(
-                    targetScale = 1.1f,
-                    animationSpec = tween(300, easing = LinearOutSlowInEasing)
-                )
-            },
-            popEnterTransition = {
-                fadeIn(
-                    animationSpec = tween(210, delayMillis = 90, easing = LinearOutSlowInEasing)
-                ) + scaleIn(
-                    initialScale = 1.1f,
-                    animationSpec = tween(300, easing = LinearOutSlowInEasing)
-                )
-            },
-            popExitTransition = {
-                fadeOut(
-                    animationSpec = tween(90, easing = FastOutLinearInEasing)
-                ) + scaleOut(
-                    targetScale = 0.8f,
-                    animationSpec = tween(300, easing = LinearOutSlowInEasing)
-                )
-            }
-        ) {
-            composable(route = "${Route.Comic.route}/{${Argument.ComicId.name}}",
-                arguments = listOf(
-                    navArgument(Argument.ComicId.name) {
-                        type = Argument.ComicId.type
+
+        composable(route = "${Route.Comic.route}/{${Argument.ComicId.name}}",
+            arguments = listOf(
+                navArgument(Argument.ComicId.name) {
+                    type = Argument.ComicId.type
+                }
+            )) { _ ->
+            ComicScreen(
+                onNavigationUp = {
+                    navController.popBackStack()
+                },
+                viewModel = hiltViewModel()
+            )
+        }
+        composable(route = "${Route.WhatIf.route}/{${Argument.WhatIfId.name}}",
+            arguments = listOf(
+                navArgument(Argument.WhatIfId.name) {
+                    type = Argument.WhatIfId.type
+                }
+            )) { _ ->
+            Text("what if article")
+        }
+        composable(Route.Home.route) {
+            val homeNavController = rememberNavController()
+            val adaptiveInfo = currentWindowAdaptiveInfo()
+            val navSuiteType =
+                with(adaptiveInfo) {
+                    if (windowPosture.isTabletop) {
+                        NavigationSuiteType.NavigationBar
+                    } else if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED ||
+                        windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
+                    ) {
+                        NavigationSuiteType.NavigationRail
+                    } else {
+                        NavigationSuiteType.NavigationBar
                     }
-                )) { _ ->
-                ComicScreen(
-                    onNavigationUp = {
-                        navController.popBackStack()
-                    },
-                    viewModel = hiltViewModel()
-                )
-            }
-            composable(Route.ComicList.route) { _ ->
-                SearchScreen(
-                    onComicSelected = { comicId ->
-                        navController.navigate("${Route.Comic.route}/$comicId")
-                    },
-                    viewModel = hiltViewModel()
-                )
-            }
-            composable(route = "${Route.WhatIf.route}/{${Argument.WhatIfId.name}}",
-                arguments = listOf(
-                    navArgument(Argument.WhatIfId.name) {
-                        type = Argument.WhatIfId.type
+                }
+            val homeNavBackStackEntry by homeNavController.currentBackStackEntryAsState()
+            val homeCurrentDestination = homeNavBackStackEntry?.destination
+
+            NavigationSuiteScaffold(
+                layoutType = navSuiteType,
+                navigationSuiteItems = {
+                    val topLevelItems = listOf(
+                        TopLevelRoute.ComicList,
+                        TopLevelRoute.WhatIfList,
+                        TopLevelRoute.Settings
+                    )
+                    topLevelItems.forEach { route ->
+                        item(
+                            icon = { Icon(route.icon, contentDescription = null) },
+                            label = { Text(stringResource(route.resourceId)) },
+                            selected = homeCurrentDestination?.hierarchy?.any { it.route == route.route } == true,
+                            onClick = {
+                                homeNavController.navigate(route.route) {
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(homeNavController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // reselecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when reselecting a previously selected item
+                                    restoreState = true
+                                }
+                            }
+                        )
                     }
-                )) { _ ->
-                Text("what if article")
-            }
-            composable(Route.WhatIfList.route) { _ ->
-                Text("what if listing")
-            }
-            composable(Route.Settings.route) { _ ->
-                SettingsScreen(
-                    onAboutScreenNavigation = {
-                        navController.navigate(Route.SettingsAbout.route)
+                }
+            ) {
+                NavHost(
+                    navController = homeNavController,
+                    startDestination = TopLevelRoute.ComicList.route,
+                    modifier = Modifier.fillMaxSize(),
+                    enterTransition = {
+                        fadeIn(
+                            animationSpec = tween(
+                                210,
+                                delayMillis = 90,
+                                easing = LinearOutSlowInEasing
+                            )
+                        ) + scaleIn(
+                            initialScale = 0.8f,
+                            animationSpec = tween(300, easing = LinearOutSlowInEasing)
+                        )
                     },
-                    viewModel = hiltViewModel()
-                )
-            }
-            composable(Route.SettingsAbout.route) { _ ->
-                AboutScreen(
-                    onNavigationUp = { navController.navigateUp() },
-                    onLicenseNavigation = { navController.navigate(Route.SettingsAboutLicenses.route) }
-                )
-            }
-            composable(Route.SettingsAboutLicenses.route) { _ ->
-                LicenseScreen(
-                    onNavigationUp = { navController.navigateUp() }
-                )
+                    exitTransition = {
+                        fadeOut(
+                            animationSpec = tween(90, easing = FastOutLinearInEasing)
+                        ) + scaleOut(
+                            targetScale = 1.1f,
+                            animationSpec = tween(300, easing = LinearOutSlowInEasing)
+                        )
+                    },
+                    popEnterTransition = {
+                        fadeIn(
+                            animationSpec = tween(
+                                210,
+                                delayMillis = 90,
+                                easing = LinearOutSlowInEasing
+                            )
+                        ) + scaleIn(
+                            initialScale = 1.1f,
+                            animationSpec = tween(300, easing = LinearOutSlowInEasing)
+                        )
+                    },
+                    popExitTransition = {
+                        fadeOut(
+                            animationSpec = tween(90, easing = FastOutLinearInEasing)
+                        ) + scaleOut(
+                            targetScale = 0.8f,
+                            animationSpec = tween(300, easing = LinearOutSlowInEasing)
+                        )
+                    }
+                ) {
+                    composable(TopLevelRoute.ComicList.route) { _ ->
+                        SearchScreen(
+                            onComicSelected = { comicId ->
+                                navController.navigate("${Route.Comic.route}/$comicId")
+                            },
+                            viewModel = hiltViewModel()
+                        )
+                    }
+                    composable(TopLevelRoute.WhatIfList.route) { _ ->
+                        Text("what if listing")
+                    }
+                    composable(TopLevelRoute.Settings.route) { _ ->
+                        SettingsScreen(
+                            onAboutScreenNavigation = {
+                                navController.navigate(Route.SettingsAbout.route)
+                            },
+                            viewModel = hiltViewModel()
+                        )
+                    }
+                }
             }
         }
+        composable(Route.SettingsAbout.route) { _ ->
+            AboutScreen(
+                onNavigationUp = { navController.navigateUp() },
+                onLicenseNavigation = { navController.navigate(Route.SettingsAboutLicenses.route) }
+            )
+        }
+        composable(Route.SettingsAboutLicenses.route) { _ ->
+            LicenseScreen(
+                onNavigationUp = { navController.navigateUp() }
+            )
+        }
+
     }
 }
 
-sealed class Route(val route: String) {
-    sealed class NamedRoute(
-        route: String,
-        @StringRes val resourceId: Int,
-        val icon: ImageVector
-    ) : Route(route)
+sealed class TopLevelRoute(
+    val route: String,
+    @StringRes val resourceId: Int,
+    val icon: ImageVector
+) {
+    data object ComicList :
+        TopLevelRoute("comic_list", R.string.comic_list, Icons.Filled.AutoStories)
 
-    data object ComicList : NamedRoute("comic_list", R.string.comic_list, Icons.Filled.AutoStories)
-    data object WhatIfList : NamedRoute(
+    data object WhatIfList : TopLevelRoute(
         "what_if_list", R.string.what_if_list,
         Icons.AutoMirrored.Filled.Article
     )
 
-    data object Settings : NamedRoute("settings", R.string.settings, Icons.Filled.Settings)
-    data object SettingsAbout : Route("settings/about")
-    data object SettingsAboutLicenses : Route("settings/about/licenses")
-    data object Comic : Route("comic")
-    data object WhatIf : Route("what_if")
+    data object Settings : TopLevelRoute("settings", R.string.settings, Icons.Filled.Settings)
+}
+
+sealed class Route(val route: String) {
+    data object Home : Route("/")
+    data object SettingsAbout : Route("/settings/about")
+    data object SettingsAboutLicenses : Route("/settings/about/licenses")
+    data object Comic : Route("/comic")
+    data object WhatIf : Route("/what_if")
 }
 
 
