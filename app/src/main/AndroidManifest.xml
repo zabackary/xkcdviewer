@@ -13,7 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.XkcdViewer"
         android:name="XkcdViewerApplication"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="35">
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="com.zabackaryc.xkcdviewer.fileprovider"

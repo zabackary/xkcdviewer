@@ -2,7 +2,7 @@ import java.io.ByteArrayOutputStream
 
 val accompanistVersion = "0.28.0"
 val material3Version = "1.1.1"
-val navVersion = "2.7.7"
+val navVersion = "2.8.5"
 val roomVersion = "2.6.1"
 val hiltVersion = "2.49"
 val retrofitVersion = "2.9.0"
@@ -38,7 +38,7 @@ plugins {
 
 android {
     namespace = "com.zabackaryc.xkcdviewer"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.zabackaryc.xkcdviewer"
@@ -95,7 +95,7 @@ android {
 
 dependencies {
     implementation(kotlin("reflect"))
-    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.core:core-ktx:1.15.0")
 
     // BOM
     val composeBom = platform("androidx.compose:compose-bom:2024.05.00")
@@ -103,15 +103,15 @@ dependencies {
     androidTestImplementation(composeBom)
 
     // Core
-    implementation("androidx.core:core-ktx:1.13.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.4")
+    implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     // Compose
     // The BOM isn"t used for material3 deps b/c it"s not up-to-date
-    implementation("androidx.activity:activity-compose:1.9.1")
+    implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3:1.3.0-beta05") // to use latest features not in bom
+    implementation("androidx.compose.material3:material3:1.3.1")
     implementation("androidx.compose.material3:material3-window-size-class")
     implementation("androidx.navigation:navigation-compose:$navVersion")
     implementation("androidx.compose.material:material-icons-extended")
